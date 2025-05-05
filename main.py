@@ -91,16 +91,26 @@ def fetch_call_logs(access_token):
     records = data.get("records", [])
     print(f"[📊] Total call records fetched: {len(records)}")
 
-    for i, call in enumerate(records[:5]):
+    for i, call in enumerate(records[:50]):
         print(f"\n📞 Call #{i+1}")
-        print("  From:     ", call.get("from", {}).get("phoneNumber"))
-        print("  To:       ", call.get("to", {}).get("phoneNumber"))
-        print("  StartTime:", call.get("startTime"))
-        print("  Direction:", call.get("direction"))
+        from_number = call.get("from", {}).get("phoneNumber")
+        to_number = call.get("to", {}).get("phoneNumber")
+        direction = call.get("direction")
+
+        # Determine client number based on direction
+        client_number = from_number if direction == "Inbound" else to_number
+
+        print("  From:         ", from_number)
+        print("  To:           ", to_number)
+        print("  Direction:    ", direction)
+        print("  Client Number:", client_number)
+        print("  StartTime:    ", call.get("startTime"))
+
         if "recording" in call:
             print("  🎙 Recording URI:", call["recording"].get("contentUri"))
         else:
             print("  ❌ No recording on this call")
+
 
     return records
 
