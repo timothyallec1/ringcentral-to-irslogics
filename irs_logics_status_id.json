@@ -1,0 +1,547 @@
+[
+    {
+      "StatusID": 1305,
+      "StatusName": "In Onboarding (Tax Prep)"
+    },
+    {
+      "StatusID": 1326,
+      "StatusName": "Waiting for 8821 Signature(s) Because Sales Failed to Collect"
+    },
+    {
+      "StatusID": 1307,
+      "StatusName": "Waiting for TPQ"
+    },
+    {
+      "StatusID": 1306,
+      "StatusName": "Waiting for Transcripts (Tax Prep)"
+    },
+    {
+      "StatusID": 1330,
+      "StatusName": "Waiting for FOIA Info"
+    },
+    {
+      "StatusID": 1308,
+      "StatusName": "With Tax Analyst"
+    },
+    {
+      "StatusID": 1309,
+      "StatusName": "With Tax Preparer"
+    },
+    {
+      "StatusID": 1310,
+      "StatusName": "With Client (Open Items)"
+    },
+    {
+      "StatusID": 1311,
+      "StatusName": "Open Items Received From Client"
+    },
+    {
+      "StatusID": 1312,
+      "StatusName": "With Tax Reviewer"
+    },
+    {
+      "StatusID": 1313,
+      "StatusName": "Tax Returns Approved by Reviewer"
+    },
+    {
+      "StatusID": 1349,
+      "StatusName": "With Client (Return Review)"
+    },
+    {
+      "StatusID": 1314,
+      "StatusName": "With Client (E-File)"
+    },
+    {
+      "StatusID": 1315,
+      "StatusName": "E-File Signature Authorizations Received"
+    },
+    {
+      "StatusID": 1316,
+      "StatusName": "Tax Returns Filed"
+    },
+    {
+      "StatusID": 1322,
+      "StatusName": "With Sales to Sell Resolution (If Not Already Sold)"
+    },
+    {
+      "StatusID": 1323,
+      "StatusName": "With Tax Prep Team to Obtain Review and Sell Ongoing Services"
+    },
+    {
+      "StatusID": 1344,
+      "StatusName": "Postdate"
+    },
+    {
+        "StatusID": 232,
+        "StatusName": "In Onboarding (Tax Res)"
+      },
+      {
+        "StatusID": 250,
+        "StatusName": "In Levy Release - Urgent!"
+      },
+      {
+        "StatusID": 10,
+        "StatusName": "Waiting for TRQ"
+      },
+      {
+        "StatusID": 1338,
+        "StatusName": "Waiting for Transcripts (Tax Res)"
+      },
+      {
+        "StatusID": 1327,
+        "StatusName": "Waiting for IRS to Process Returns / Assess Balances"
+      },
+      {
+        "StatusID": 205,
+        "StatusName": "With Client for Additional Info / Approval"
+      },
+      {
+        "StatusID": 206,
+        "StatusName": "With Case Manager (Resolution Analysis)"
+      },
+      {
+        "StatusID": 1347,
+        "StatusName": "With Attorney (Resolution Analysis)"
+      },
+      {
+        "StatusID": 1334,
+        "StatusName": "ACS - With Attorney to Place Res"
+      },
+      {
+        "StatusID": 1331,
+        "StatusName": "ACS - With IRS to Approve Resolution"
+      },
+      {
+        "StatusID": 1350,
+        "StatusName": "RO - With Case Manager for 433-A / RO Package Prep"
+      },
+      {
+        "StatusID": 1335,
+        "StatusName": "RO - With Attorney to Discuss With RO"
+      },
+      {
+        "StatusID": 1336,
+        "StatusName": "RO - With IRS"
+      },
+      {
+        "StatusID": 1346,
+        "StatusName": "OIC - With Case Manager for OIC Prep"
+      },
+      {
+        "StatusID": 1351,
+        "StatusName": "OIC - With Attorney"
+      },
+      {
+        "StatusID": 1333,
+        "StatusName": "OIC - With IRS"
+      },
+      {
+        "StatusID": 1352,
+        "StatusName": "IRS Appeals - With Case Manager"
+      },
+      {
+        "StatusID": 1353,
+        "StatusName": "IRS Appeals - With Attorney"
+      },
+      {
+        "StatusID": 1354,
+        "StatusName": "IRS Appeals - With IRS"
+      },
+      {
+        "StatusID": 1337,
+        "StatusName": "State - With Attorney to Discuss With State"
+      },
+      {
+        "StatusID": 1332,
+        "StatusName": "State - With State"
+      },
+      {
+        "StatusID": 1360,
+        "StatusName": "With IRS For CSED Expiration"
+      },
+      {
+        "StatusID": 1339,
+        "StatusName": "With IRS in Old Status (BK, OIC, Etc.)"
+      },
+      {
+        "StatusID": 1363,
+        "StatusName": "Strategic Hold"
+      },
+      {
+        "StatusID": 1317,
+        "StatusName": "In AUR Onboarding"
+      },
+      {
+        "StatusID": 1318,
+        "StatusName": "With Tax Preparer"
+      },
+      {
+        "StatusID": 1319,
+        "StatusName": "With Tax Reviewer"
+      },
+      {
+        "StatusID": 1320,
+        "StatusName": "With Client"
+      },
+      {
+        "StatusID": 1321,
+        "StatusName": "With IRS AUR"
+      },
+      {
+        "StatusID": 1324,
+        "StatusName": "With Sales to Sell Resolution (If Not Already Sold)"
+      },
+      {
+        "StatusID": 1325,
+        "StatusName": "With Tax Prep Team to Obtain Review and Sell Ongoing Services"
+      },
+      {
+        "StatusID": 1358,
+        "StatusName": "Audit - With Tax Prep Department"
+      },
+      {
+        "StatusID": 1356,
+        "StatusName": "Audit - With Attorney"
+      },
+      {
+        "StatusID": 1357,
+        "StatusName": "Audit - With IRS"
+      },
+      {
+        "StatusID": 1359,
+        "StatusName": "Audit - Closed; Send Survey and Consider Upsell"
+      },
+      {
+        "StatusID": 60,
+        "StatusName": "Account Delinquent"
+      },
+      {
+        "StatusID": 18,
+        "StatusName": "1st Payment Default"
+      },
+      {
+        "StatusID": 1296,
+        "StatusName": "Unsure If Wants to Continue With Services"
+      },
+      {
+        "StatusID": 1361,
+        "StatusName": "Consider For Next Year Tax Prep Upsell"
+      },
+      {
+        "StatusID": 1340,
+        "StatusName": "In Contact Attempt for Upsell"
+      },
+      {
+        "StatusID": 1341,
+        "StatusName": "Contact Made for Upsell"
+      },
+      {
+        "StatusID": 1355,
+        "StatusName": "Contract Sent for Upsell"
+      },
+      {
+        "StatusID": 1345,
+        "StatusName": "Postdate"
+      },
+      {
+        "StatusID": 202,
+        "StatusName": "[Select Another Status - Don't Use This One]"
+      },
+      {
+        "StatusID": 22,
+        "StatusName": "Refund"
+      },
+      {
+        "StatusID": 24,
+        "StatusName": "Non-Payment"
+      },
+      {
+        "StatusID": 25,
+        "StatusName": "Hold"
+      },
+      {
+        "StatusID": 26,
+        "StatusName": "Changed Mind"
+      },
+      {
+        "StatusID": 1301,
+        "StatusName": "Unresponsive to TPQ Request"
+      },
+      {
+        "StatusID": 1302,
+        "StatusName": "Unresponsive to TRQ Request"
+      },
+      {
+        "StatusID": 1287,
+        "StatusName": "Unresponsive to Prep Open Items"
+      },
+      {
+        "StatusID": 1286,
+        "StatusName": "Unresponsive to Resolution Open Items"
+      },
+      {
+        "StatusID": 1284,
+        "StatusName": "Unresponsive to Sales"
+      },
+      {
+        "StatusID": 1283,
+        "StatusName": "Inactive Client - Follow Up For Upsell Intermittently"
+      },
+      {
+        "StatusID": 233,
+        "StatusName": "Inactive Client"
+      },
+      {
+        "StatusID": 1328,
+        "StatusName": "OIC Accepted - WE NEED TO GET A REVIEW"
+      },
+      {
+        "StatusID": 12,
+        "StatusName": "Review Obtained"
+      },
+      {
+        "StatusID": 248,
+        "StatusName": "Review Requested for Non-OIC But Not Obtained After 3 Attempts"
+      },
+      {
+        "StatusID": 247,
+        "StatusName": "No Review Requested (Make Note in File WHY No Review Was Requested)"
+      },
+      {
+        "StatusID": 234,
+        "StatusName": "No Resolution Pursued"
+      },
+      {
+        "StatusID": 277,
+        "StatusName": "Client Cancelled Contract"
+      },
+      {
+        "StatusID": 1362,
+        "StatusName": "Post-Closure Courtesy Revision"
+      },
+      {
+        "StatusID": 1285,
+        "StatusName": "May Pursue for Next Year's Tax Prep"
+      },
+      {
+        "StatusID": 1290,
+        "StatusName": "Client Ghosted Prep Team - Returns and Filing Instructions Sent"
+      },
+      {
+        "StatusID": 1304,
+        "StatusName": "Client Ghosted Resolution Team"
+      },
+      {
+        "StatusID": 1279,
+        "StatusName": "Contact Made"
+      },
+      {
+        "StatusID": 167,
+        "StatusName": "Investigation Agreement Sent"
+      },
+      {
+        "StatusID": 168,
+        "StatusName": "Investigation Agreement Received"
+      },
+      {
+        "StatusID": 162,
+        "StatusName": "Contract Sent"
+      },
+      {
+        "StatusID": 1,
+        "StatusName": "Unopened"
+      },
+      {
+        "StatusID": 2,
+        "StatusName": "Opened"
+      },
+      {
+        "StatusID": 226,
+        "StatusName": "Wants Follow Up in X Weeks"
+      },
+      {
+        "StatusID": 52,
+        "StatusName": "1st call"
+      },
+      {
+        "StatusID": 53,
+        "StatusName": "2nd call"
+      },
+      {
+        "StatusID": 54,
+        "StatusName": "3rd call"
+      },
+      {
+        "StatusID": 56,
+        "StatusName": "Can not reach"
+      },
+      {
+        "StatusID": 6,
+        "StatusName": "Waiting on POA/Contract"
+      },
+      {
+        "StatusID": 163,
+        "StatusName": "Waiting on Client"
+      },
+      {
+        "StatusID": 160,
+        "StatusName": "Appointment Pending"
+      },
+      {
+        "StatusID": 1282,
+        "StatusName": "Transferred to Closer"
+      },
+      {
+        "StatusID": 165,
+        "StatusName": "Consultation"
+      },
+      {
+        "StatusID": 166,
+        "StatusName": "Customer Application"
+      },
+      {
+        "StatusID": 258,
+        "StatusName": "No-Show to Appointment"
+      },
+      {
+        "StatusID": 260,
+        "StatusName": "Had Call, Nothing Here - Review Requested"
+      },
+      {
+        "StatusID": 261,
+        "StatusName": "Had Call, Nothing Here - Review Obtained"
+      },
+      {
+        "StatusID": 266,
+        "StatusName": "Said Not Interested, Keep on List"
+      },
+      {
+        "StatusID": 268,
+        "StatusName": "Not in Our Wheelhouse, Keep on List"
+      },
+      {
+        "StatusID": 273,
+        "StatusName": "Amount Under $10k, Keep on List"
+      },
+      {
+        "StatusID": 1303,
+        "StatusName": "LOGAN TO REVIEW SALES CALL"
+      },
+      {
+        "StatusID": 46,
+        "StatusName": "Resolved Case"
+      },
+      {
+        "StatusID": 35,
+        "StatusName": "Disconnected Number"
+      },
+      {
+        "StatusID": 36,
+        "StatusName": "Duplicate Lead"
+      },
+      {
+        "StatusID": 38,
+        "StatusName": "Spam"
+      },
+      {
+        "StatusID": 39,
+        "StatusName": "Wrong Number"
+      },
+      {
+        "StatusID": 40,
+        "StatusName": "Confused About What Tax Relief Is"
+      },
+      {
+        "StatusID": 41,
+        "StatusName": "Fake"
+      },
+      {
+        "StatusID": 42,
+        "StatusName": "Language Problem"
+      },
+      {
+        "StatusID": 43,
+        "StatusName": "Wrong Amount"
+      },
+      {
+        "StatusID": 44,
+        "StatusName": "Debt Amount Too Low"
+      },
+      {
+        "StatusID": 47,
+        "StatusName": "No Money"
+      },
+      {
+        "StatusID": 222,
+        "StatusName": "Dealing With Issue on Their Own"
+      },
+      {
+        "StatusID": 223,
+        "StatusName": "Quoted Price But Felt It Was Too High"
+      },
+      {
+        "StatusID": 224,
+        "StatusName": "Unresponsive"
+      },
+      {
+        "StatusID": 225,
+        "StatusName": "Too Much Net Income / Assets"
+      },
+      {
+        "StatusID": 228,
+        "StatusName": "Potential Fraud"
+      },
+      {
+        "StatusID": 229,
+        "StatusName": "Just Not Interested"
+      },
+      {
+        "StatusID": 237,
+        "StatusName": "Not Something We Handle"
+      },
+      {
+        "StatusID": 264,
+        "StatusName": "Already Paid Off Entire Debt"
+      },
+      {
+        "StatusID": 267,
+        "StatusName": "No Contact Info"
+      },
+      {
+        "StatusID": 269,
+        "StatusName": "Said \"Take Me Off List\""
+      },
+      {
+        "StatusID": 270,
+        "StatusName": "Looking For Tax Refund"
+      },
+      {
+        "StatusID": 271,
+        "StatusName": "Basic Tax Prep - Referred to TurboTax"
+      },
+      {
+        "StatusID": 274,
+        "StatusName": "Can't Help"
+      },
+      {
+        "StatusID": 275,
+        "StatusName": "On Do Not Call List"
+      },
+      {
+        "StatusID": 276,
+        "StatusName": "Hired Different Firm"
+      },
+      {
+        "StatusID": 1280,
+        "StatusName": "Pipes.ai - DNC"
+      },
+      {
+        "StatusID": 1281,
+        "StatusName": "DEAD LEADS"
+      },
+      {
+        "StatusID": 150,
+        "StatusName": "Pending Approval"
+      }
+  ]
+  
