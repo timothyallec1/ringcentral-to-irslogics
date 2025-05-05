@@ -1,7 +1,9 @@
 import os
 import requests
 from dotenv import load_dotenv
-import datetime
+from datetime import datetime, timedelta
+import json
+
 
 # Load secrets
 load_dotenv(".env.local")
@@ -76,11 +78,12 @@ def fetch_call_logs(access_token):
     }
 
     # Go back 30 days
-    from_date = (datetime.datetime.utcnow() - datetime.timedelta(days=30)).isoformat() + "Z"
+    from_date = (datetime.utcnow() - timedelta(days=365)).isoformat() + "Z"
+
 
     params = {
         "withRecording": "True",
-        "perPage": 1000,
+        "perPage": 5000,
         "dateFrom": from_date
     }
 
@@ -91,7 +94,7 @@ def fetch_call_logs(access_token):
     records = data.get("records", [])
     print(f"[📊] Total call records fetched: {len(records)}")
 
-    for i, call in enumerate(records[:50]):
+    for i, call in enumerate(records[:10]):
         print(f"\n📞 Call #{i+1}")
         from_number = call.get("from", {}).get("phoneNumber")
         to_number = call.get("to", {}).get("phoneNumber")
@@ -126,9 +129,38 @@ def download_recording(recording_uri, access_token, filename):
         f.write(response.content)
     print("[✅] Download complete.")
 
+def save_calls_to_json(calls, output_dir="call_logs_cache"):
+    # Ensure output directory exists
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Create timestamped filename
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H%M")
+    filename = f"calls_{timestamp}.json"
+    filepath = os.path.join(output_dir, filename)
+
+    structured_calls = []
+
+    for call in calls:
+        if "recording" in call:
+            direction = call.get("direction")
+            phone = call.get("from", {}).get("phoneNumber") if direction == "Inbound" else call.get("to", {}).get("phoneNumber")
+            structured_calls.append({
+                "call_id": call.get("id"),
+                "client_number": phone,
+                "direction": direction,
+                "startTime": call.get("startTime"),
+                "recording_uri": call["recording"]["contentUri"]
+            })
+
+    with open(filepath, "w") as f:
+        json.dump(structured_calls, f, indent=2)
+
+    print(f"[💾] Saved {len(structured_calls)} calls with recordings to {filepath}")
 def main():
     access_token = get_access_token_from_refresh_token()
     calls = fetch_call_logs(access_token)
+    save_calls_to_json(calls)
+
 
     if not calls:
         print("❌ No calls with recordings found.")
