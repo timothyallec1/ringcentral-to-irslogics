@@ -1,6 +1,7 @@
 import os
 import requests
 from dotenv import load_dotenv
+import datetime
 
 # Load secrets
 load_dotenv(".env.local")
@@ -73,13 +74,35 @@ def fetch_call_logs(access_token):
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
+
+    # Go back 30 days
+    from_date = (datetime.datetime.utcnow() - datetime.timedelta(days=30)).isoformat() + "Z"
+
     params = {
-        "withRecording": "true",
-        "perPage": 100
+        "withRecording": "True",
+        "perPage": 1000,
+        "dateFrom": from_date
     }
+
     response = requests.get(CALL_LOG_URL, headers=headers, params=params)
     response.raise_for_status()
-    return response.json().get("records", [])
+
+    data = response.json()
+    records = data.get("records", [])
+    print(f"[📊] Total call records fetched: {len(records)}")
+
+    for i, call in enumerate(records[:5]):
+        print(f"\n📞 Call #{i+1}")
+        print("  From:     ", call.get("from", {}).get("phoneNumber"))
+        print("  To:       ", call.get("to", {}).get("phoneNumber"))
+        print("  StartTime:", call.get("startTime"))
+        print("  Direction:", call.get("direction"))
+        if "recording" in call:
+            print("  🎙 Recording URI:", call["recording"].get("contentUri"))
+        else:
+            print("  ❌ No recording on this call")
+
+    return records
 
 def download_recording(recording_uri, access_token, filename):
     print(f"[⬇️] Downloading recording to {filename}...")
