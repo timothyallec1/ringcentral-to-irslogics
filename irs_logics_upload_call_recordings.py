@@ -1,3 +1,26 @@
+# ---------------------------------------------------------------
+# Script: irs_logics_upload_call_recordings.py
+# Date Created: 2025-05-06
+# Description:
+#   Automates the process of uploading RingCentral call recordings 
+#   to the IRS Logics platform by matching calls with CaseIDs.
+# 
+#   Features:
+#   - Downloads call recordings from RingCentral using a refresh token stores them in a temp directory
+#   - Splits recordings larger than 5.99 MB into smaller MP3 parts
+#   - Uploads each recording or split part to IRS Logics using the
+#     public document API and a valid CaseID
+#   - Automatically updates the refresh token if a new one is received
+#   - Supports retrying failed uploads with recursive splitting
+# 
+#   Input:
+#     - Merged call logs with `CaseID` in: ring_central_call_logs_cache/merged_calls_with_case_id_<timestamp>.json
+#   Output:
+#     - Upload status logs and optionally deleted temp MP3 files in ./temp_recordings
+#
+# ---------------------------------------------------------------
+
+
 import os
 import json
 import requests

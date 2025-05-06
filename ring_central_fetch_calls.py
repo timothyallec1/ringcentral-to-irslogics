@@ -1,3 +1,34 @@
+# --------------------------------------------------------------------
+# Script: ring_central_fetch_calls.py
+# Date Created: 2025-05-06
+# Description:
+#   This script authenticates with the RingCentral API using a stored
+#   refresh token and fetches all call logs that include recordings
+#   for the past ~1000 days. It filters these to include only sales
+#   team calls and stores the results in a JSON file. The first 
+#   recording is downloaded locally for quick validation.
+#
+#   Features:
+#   - Authenticates via OAuth 2.0 (refresh token)
+#   - Updates the `.env.local` file if a new refresh token is returned
+#   - Fetches call logs with recordings
+#   - Filters only those calls where the sales number is known
+#   - Outputs a structured call log JSON for later matching
+#   - Downloads the first recording as an MP3 file
+#
+#   Usage:
+#     Run directly from terminal:
+#     `python ring_central_fetch_calls.py`
+#
+#   Output:
+#     - JSON file in `ring_central_call_logs_cache/` named like
+#       `calls_YYYY-MM-DD_HHMM.json`
+#     - The first valid MP3 recording downloaded as:
+#       `recording_call_1_XXXXXXXXXX.mp3`
+#
+# --------------------------------------------------------------------
+
+
 import os
 import requests
 from dotenv import load_dotenv

@@ -1,3 +1,32 @@
+# --------------------------------------------------------------------
+# Script: ringe_central_get_tokens.py
+# Date Created: 2025-05-06
+# Description:
+#   This utility script initiates the OAuth 2.0 flow for RingCentral's
+#   API to obtain an access token and refresh token using a client ID,
+#   client secret, and redirect URI.
+#
+#   Features:
+#   - Opens the RingCentral authorization page in a web browser
+#   - Prompts the user to paste the authorization code
+#   - Exchanges the code for access and refresh tokens via API
+#   - Prints both tokens to the console and instructs where to store them
+#
+#   Usage:
+#     1. Run the script in a terminal: `python ringe_central_get_tokens.py`
+#     2. Log into RingCentral when the browser opens
+#     3. After redirection, copy the `code` from the URL
+#     4. Paste it into the terminal when prompted
+#     5. Copy the `refresh_token` and store it in `.env.local`... overwrite the old one if it exists
+#
+#   Prerequisites:
+#     - Environment variables set in `.env.local`:
+#         RINGCENTRAL_CLIENT_ID
+#         RINGCENTRAL_CLIENT_SECRET
+#         RINGCENTRAL_REDIRECT_URI (optional; defaults to localhost)
+# --------------------------------------------------------------------
+
+
 import os
 import requests
 import urllib.parse

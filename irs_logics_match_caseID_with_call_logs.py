@@ -1,3 +1,30 @@
+# ---------------------------------------------------------------
+# Script: irs_logics_match_caseID_with_call_logs.py
+# Date Created: 2025-05-06
+# Description:
+#   This script matches RingCentral call logs with IRS Logics cases 
+#   by comparing phone numbers. If a match is found based on any of 
+#   the phone fields (CellPhone, HomePhone, WorkPhone), the call is 
+#   enriched with the corresponding CaseID and contact name.
+#
+#   Features:
+#   - Loads call log JSON and case contact JSON files
+#   - Matches call log entries with IRS Logics cases using phone numbers
+#   - Outputs two JSON files:
+#       1. Merged call logs with matching CaseIDs
+#       2. Unmatched call logs for auditing
+#
+#   Input:
+#     - CALLS_FILE: A JSON file containing RingCentral call logs
+#     - CASES_FILE: A JSON file containing case contact details with phone numbers
+#
+#   Output:
+#     - merged_calls_with_case_id_<timestamp>.json
+#     - unmatched_calls_<timestamp>.json
+#
+# ---------------------------------------------------------------
+
+
 import json
 import os
 from datetime import datetime
