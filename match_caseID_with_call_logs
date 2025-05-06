@@ -1,0 +1,41 @@
+import json
+import os
+
+# File paths
+CALLS_FILE = "ring_central_call_logs_cache/calls_2025-05-05_1743.json"
+CASES_FILE = "irs_logics_case_logs_cache/first_5_statusid_case_contacts.json"
+OUTPUT_FILE = "merged_calls_with_case_id.json"
+
+# Load call logs
+with open(CALLS_FILE, "r") as f:
+    call_logs = json.load(f)
+
+# Load IRS Logics case contacts
+with open(CASES_FILE, "r") as f:
+    cases = json.load(f)
+
+# Index case contacts by all known phone numbers
+phone_to_case = {}
+for case in cases:
+    for phone_field in ["CellPhone", "HomePhone", "WorkPhone"]:
+        phone = case.get(phone_field)
+        if phone:
+            phone_to_case[phone] = {
+                "CaseID": case["CaseID"],
+                "Name": case["Name"]
+            }
+
+# Match calls to cases
+matched_calls = []
+for call in call_logs:
+    phone = call.get("client_number")
+    if phone and phone in phone_to_case:
+        matched = call.copy()
+        matched.update(phone_to_case[phone])
+        matched_calls.append(matched)
+
+# Save matched calls
+with open(OUTPUT_FILE, "w") as f:
+    json.dump(matched_calls, f, indent=2)
+
+print(f"[✅] Matched {len(matched_calls)} calls saved to {OUTPUT_FILE}")
