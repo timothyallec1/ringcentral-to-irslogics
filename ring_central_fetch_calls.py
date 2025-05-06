@@ -166,13 +166,22 @@ def main():
         print("❌ No calls with recordings found.")
         return
 
-    for call in calls:
+    for i, call in enumerate(calls):
         if "recording" in call:
             recording_uri = call["recording"]["contentUri"]
-            phone = call.get("to", {}).get("phoneNumber") or call.get("from", {}).get("phoneNumber")
-            filename = f"recording_{phone.replace('+', '').replace(' ', '').replace('(', '').replace(')', '').replace('-', '')}.mp3"
+
+            direction = call.get("direction")
+            raw_number = call.get("from", {}).get("phoneNumber") if direction == "Inbound" else call.get("to", {}).get("phoneNumber")
+            formatted_number = format_phone_number(raw_number)
+
+            # Sanitize phone number for filename (remove special chars)
+            safe_number = formatted_number.replace("(", "").replace(")", "").replace("-", "")
+
+            filename = f"recording_call_{i+1}_{safe_number}.mp3"
             download_recording(recording_uri, access_token, filename)
             break
+
+
     else:
         print("❌ Found calls, but no recordings were downloadable.")
 
