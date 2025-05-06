@@ -33,12 +33,18 @@ os.makedirs(TEMP_DIR, exist_ok=True)
 MAX_MB = 5.99
 MAX_BYTES = MAX_MB * 1024 * 1024  # ~6,285,824 bytes
 
-def split_mp3_if_needed(filepath):
-    file_size = os.path.getsize(filepath)
-    if file_size <= MAX_BYTES:
-        return [filepath]  # No split needed
 
-    print(f"[⚠️] File exceeds {MAX_MB} MB. Splitting...")
+def split_mp3_if_needed(filepath, force_split=False):
+    try:
+        file_size = os.path.getsize(filepath)
+    except FileNotFoundError:
+        print(f"[❌] File not found for splitting: {filepath}")
+        return []
+
+    if file_size <= MAX_BYTES and not force_split:
+        return [filepath]  # No split needed unless forced
+
+    print(f"[⚠️] File exceeds {MAX_MB} MB or forced split. Splitting...")
 
     audio = AudioSegment.from_mp3(filepath)
     duration_ms = len(audio)
@@ -59,8 +65,11 @@ def split_mp3_if_needed(filepath):
         print(f"[🎧] Created: {new_filename}")
 
     # Optionally delete original large file
-    os.remove(filepath)
+    if os.path.exists(filepath):
+        os.remove(filepath)
+
     return new_files
+
 
 
 def get_access_token_from_refresh_token():
@@ -172,7 +181,6 @@ def upload_to_irslogics(case_id, file_path):
         print(f"[❌] Upload error: {e}")
         return False
 
-
 def main():
     access_token = get_access_token_from_refresh_token()
 
@@ -191,25 +199,58 @@ def main():
 
         print(f"\n[{i}/{len(call_logs)}] Processing call {call_id} for CaseID {case_id}")
 
-        # Download
+        # Download recording
         if not download_recording(recording_uri, access_token, filename):
             continue
 
-        # 🔄 Split if file > 5.99MB
+        # Split if needed
         file_list = split_mp3_if_needed(filename)
 
-        # Upload each (split or not)
+            # Upload each file (original or split parts)
         for f in file_list:
-            if upload_to_irslogics(case_id, f):
+            basename = os.path.basename(f)
+
+            # Attempt upload
+            success = upload_to_irslogics(case_id, f)
+
+            # Fallback if upload failed AND it's not already a split part
+            if not success and "_part" not in f:
+                print(f"[🔁] Upload failed (non-200). Attempting fallback split for: {f}")
+
+                # 🔄 Split the file first
+                fallback_parts = split_mp3_if_needed(f, force_split=True)
+
+                if not fallback_parts:
+                    print(f"[⚠️] No fallback parts created for {f}. Skipping...")
+                    continue
+
+                print(f"[🔀] Fallback split created {len(fallback_parts)} parts:")
+
+                for idx, part in enumerate(fallback_parts, 1):
+                    print(f"  [🎧 Part {idx}] {part}")
+
+                # ✅ Don't try to upload `f` again — it's deleted. Upload each part instead.
+                for part in fallback_parts:
+                    if upload_to_irslogics(case_id, part):
+                        success_count += 1
+                    else:
+                        print(f"[❌] Failed to upload fallback part: {part}")
+
+                    # Clean up each part
+                    if os.path.exists(part):
+                        os.remove(part)
+
+                continue  # ✅ Skip the rest of the loop since we already handled this case
+
+
+
+            elif success:
                 success_count += 1
-            else:
-                print(f"[❌] Failed to upload {f}")
+                if os.path.exists(f):
+                    os.remove(f)
 
-            # Cleanup
-            if os.path.exists(f):
-                os.remove(f)
 
-        time.sleep(1)  # Optional: throttle requests slightly
+        time.sleep(2.5)  # Optional: throttle requests
 
     print(f"\n[✅] Upload complete. Successful uploads: {success_count}/{len(call_logs)}")
 
