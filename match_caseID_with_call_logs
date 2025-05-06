@@ -7,6 +7,7 @@ CALLS_FILE = "ring_central_call_logs_cache/calls_2025-05-05_2032.json"
 CASES_FILE = "irs_logics_case_logs_cache/all_cases_with_numbers.json"
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 OUTPUT_FILE = f"ring_central_call_logs_cache/merged_calls_with_case_id_{timestamp}.json"
+UNMATCHED_FILE = f"ring_central_call_logs_cache/unmatched_calls_{timestamp}.json"
 
 # Load call logs
 with open(CALLS_FILE, "r") as f:
@@ -29,17 +30,28 @@ for case in cases:
 
 # Match calls to cases
 matched_calls = []
+unmatched_calls = []
+
 for call in call_logs:
     phone = call.get("client_number")
     if phone and phone in phone_to_case:
         matched = call.copy()
         matched.update(phone_to_case[phone])
         matched_calls.append(matched)
+    else:
+        unmatched_calls.append(call)
 
+# Create output directory if it doesn't exist
 os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
 
 # Save matched calls
 with open(OUTPUT_FILE, "w") as f:
     json.dump(matched_calls, f, indent=2)
 
+# Save unmatched calls
+with open(UNMATCHED_FILE, "w") as f:
+    json.dump(unmatched_calls, f, indent=2)
+
+# Log results
 print(f"[✅] Matched {len(matched_calls)} calls saved to {OUTPUT_FILE}")
+print(f"[⚠️] Unmatched {len(unmatched_calls)} calls saved to {UNMATCHED_FILE}")
