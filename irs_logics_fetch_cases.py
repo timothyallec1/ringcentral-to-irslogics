@@ -52,7 +52,7 @@ for status_id in all_status_ids:
             print(f"❌ Error fetching CaseID {case_id}: {e}")
 
 # Save results to JSON for review
-output_path = "irs_logics_case_logs_cache/first_5_statusid_case_contacts.json"
+output_path = "irs_logics_case_logs_cache/all_cases_with_numbers.json"
 with open(output_path, "w") as f:
     json.dump(results, f, indent=2)
 
