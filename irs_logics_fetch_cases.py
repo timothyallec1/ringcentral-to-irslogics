@@ -13,14 +13,13 @@ GET_CASE_URL = "https://choice.irslogics.com/publicapi/2020-02-22/cases/caseinfo
 with open(CASE_CACHE_PATH, "r") as f:
     cache = json.load(f)
 
-# Limit to first 5 StatusIDs
-first_5_status_ids = list(cache.keys())[:5]
+all_status_ids = list(cache.keys())
 
 # Container for results
 results = []
 
 # Loop through first 5 StatusIDs
-for status_id in first_5_status_ids:
+for status_id in all_status_ids:
     case_ids = cache[status_id]
     print(f"\n[🔁] StatusID: {status_id} — Total Cases: {len(case_ids)}")
 
