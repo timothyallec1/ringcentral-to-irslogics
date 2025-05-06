@@ -106,7 +106,7 @@ def fetch_call_logs(access_token):
         print("  From:         ", from_number)
         print("  To:           ", to_number)
         print("  Direction:    ", direction)
-        print("  Client Number:", client_number)
+        print("  Client Number:", format_phone_number(client_number))
         print("  StartTime:    ", call.get("startTime"))
 
         if "recording" in call:
@@ -146,7 +146,7 @@ def save_calls_to_json(calls, output_dir="ring_central_call_logs_cache"):
             phone = call.get("from", {}).get("phoneNumber") if direction == "Inbound" else call.get("to", {}).get("phoneNumber")
             structured_calls.append({
                 "call_id": call.get("id"),
-                "client_number": phone,
+                "client_number": format_phone_number(phone),
                 "direction": direction,
                 "startTime": call.get("startTime"),
                 "recording_uri": call["recording"]["contentUri"]
@@ -175,6 +175,22 @@ def main():
             break
     else:
         print("❌ Found calls, but no recordings were downloadable.")
+
+def format_phone_number(raw_number):
+    if not raw_number:
+        return ""  # Return empty string if None or blank
+
+    if raw_number.startswith('+1'):
+        raw_number = raw_number[2:]
+    
+    # Ensure only digits remain
+    digits = ''.join(filter(str.isdigit, raw_number))
+    
+    if len(digits) == 10:
+        return f"({digits[:3]}){digits[3:6]}-{digits[6:]}"
+    else:
+        return raw_number  # Return as-is if not valid 10-digit number
+
 
 if __name__ == "__main__":
     main()
