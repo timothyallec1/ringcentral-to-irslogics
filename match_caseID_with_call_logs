@@ -3,8 +3,8 @@ import os
 
 # File paths
 CALLS_FILE = "ring_central_call_logs_cache/calls_2025-05-05_1743.json"
-CASES_FILE = "irs_logics_case_logs_cache/first_5_statusid_case_contacts.json"
-OUTPUT_FILE = "merged_calls_with_case_id.json"
+CASES_FILE = "irs_logics_case_logs_cache/all_cases_with_numbers.json"
+OUTPUT_FILE = "ring_central_call_logs_cache/merged_calls_with_case_id.json"
 
 # Load call logs
 with open(CALLS_FILE, "r") as f:
@@ -33,6 +33,8 @@ for call in call_logs:
         matched = call.copy()
         matched.update(phone_to_case[phone])
         matched_calls.append(matched)
+
+os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
 
 # Save matched calls
 with open(OUTPUT_FILE, "w") as f:
