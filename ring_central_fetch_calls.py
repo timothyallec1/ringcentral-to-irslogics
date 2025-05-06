@@ -129,7 +129,7 @@ def download_recording(recording_uri, access_token, filename):
         f.write(response.content)
     print("[✅] Download complete.")
 
-def save_calls_to_json(calls, output_dir="call_logs_cache"):
+def save_calls_to_json(calls, output_dir="ring_central_call_logs_cache"):
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
 
