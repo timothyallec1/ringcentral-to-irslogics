@@ -26,7 +26,7 @@ BASE_URL = os.getenv("RINGCENTRAL_BASE_URL", "https://platform.ringcentral.com")
 TOKEN_URL = f"{BASE_URL}/restapi/oauth/token"
 
 # Input file
-MERGED_CALLS_FILE = "ring_central_call_logs_cache/merged_calls_with_case_id.json"
+MERGED_CALLS_FILE = "ring_central_call_logs_cache/merged_calls_with_case_id_2025-05-05_21-43-15.json"
 TEMP_DIR = "temp_recordings"
 os.makedirs(TEMP_DIR, exist_ok=True)
 
