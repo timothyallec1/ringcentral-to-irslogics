@@ -17,6 +17,25 @@ BASE_URL = os.getenv("RINGCENTRAL_BASE_URL", "https://platform.ringcentral.com")
 TOKEN_URL = f"{BASE_URL}/restapi/oauth/token"
 CALL_LOG_URL = f"{BASE_URL}/restapi/v1.0/account/~/call-log"
 
+SALE_NUMBERS = {
+    "(213)900-4505",  # Aden Bustillos
+    "(323)486-6977",  # Alex Feuer
+    "(213)296-2235",  # Andrea Coins
+    "(818)649-5689",  # Caleb Cole
+    "(213)762-0668",  # Danny Guerra
+    "(213)378-2141",  # David Monroe
+    "(213)296-2838",  # Hailey Ritter
+    "(213)291-9502",  # Kylie Klingman
+    "(213)291-9541",  # Leah McLaughlin
+    "(213)291-9376",  # Levon Baghdagyulyan
+    "(213)291-9409",  # Logan Allec
+    "(213)762-0553",  # Luke Lasiter
+    "(213)291-9419",  # Lulu Peralta
+    "(213)341-2065",  # Nathan Hyun
+    "(855)477-5436",  # Tim Allec
+}
+
+
 def get_access_token_from_refresh_token():
     print("[🔄] Exchanging refresh token for access token...")
     data = {
@@ -78,7 +97,7 @@ def fetch_call_logs(access_token):
     }
 
     # Go back 30 days
-    from_date = (datetime.utcnow() - timedelta(days=365)).isoformat() + "Z"
+    from_date = (datetime.utcnow() - timedelta(days=1000)).isoformat() + "Z"
 
 
     params = {
@@ -100,14 +119,16 @@ def fetch_call_logs(access_token):
         to_number = call.get("to", {}).get("phoneNumber")
         direction = call.get("direction")
 
-        # Determine client number based on direction
         client_number = from_number if direction == "Inbound" else to_number
+        sale_number = to_number if direction == "Inbound" else from_number
 
         print("  From:         ", from_number)
         print("  To:           ", to_number)
         print("  Direction:    ", direction)
         print("  Client Number:", format_phone_number(client_number))
+        print("  Sale Number:  ", format_phone_number(sale_number))
         print("  StartTime:    ", call.get("startTime"))
+
 
         if "recording" in call:
             print("  🎙 Recording URI:", call["recording"].get("contentUri"))
@@ -138,19 +159,26 @@ def save_calls_to_json(calls, output_dir="ring_central_call_logs_cache"):
     filename = f"calls_{timestamp}.json"
     filepath = os.path.join(output_dir, filename)
 
+
     structured_calls = []
 
     for call in calls:
         if "recording" in call:
             direction = call.get("direction")
-            phone = call.get("from", {}).get("phoneNumber") if direction == "Inbound" else call.get("to", {}).get("phoneNumber")
-            structured_calls.append({
-                "call_id": call.get("id"),
-                "client_number": format_phone_number(phone),
-                "direction": direction,
-                "startTime": call.get("startTime"),
-                "recording_uri": call["recording"]["contentUri"]
-            })
+            client = call.get("from", {}).get("phoneNumber") if direction == "Inbound" else call.get("to", {}).get("phoneNumber")
+            sale = call.get("to", {}).get("phoneNumber") if direction == "Inbound" else call.get("from", {}).get("phoneNumber")
+            formatted_sale = format_phone_number(sale)
+
+            if formatted_sale in SALE_NUMBERS:
+                structured_calls.append({
+                    "call_id": call.get("id"),
+                    "client_number": format_phone_number(client),
+                    "sale_number": formatted_sale,
+                    "direction": direction,
+                    "startTime": call.get("startTime"),
+                    "recording_uri": call["recording"]["contentUri"]
+                })
+
 
     with open(filepath, "w") as f:
         json.dump(structured_calls, f, indent=2)
