@@ -215,6 +215,59 @@ def save_calls_to_json(calls, output_dir="ring_central_call_logs_cache"):
         json.dump(structured_calls, f, indent=2)
 
     print(f"[💾] Saved {len(structured_calls)} calls with recordings to {filepath}")
+
+def fetch_and_cache_ringcentral_calls():
+    """
+    Complete automated flow:
+    - Get access token from refresh token
+    - Fetch all RingCentral call logs
+    - Filter to sales numbers + recordings
+    - Save to a timestamped JSON file in `ring_central_call_logs_cache/`
+    
+    Returns:
+        str: Path to the saved JSON file
+    """
+    print("🔐 Getting access token using refresh token...")
+    access_token = get_access_token_from_refresh_token()
+    print("✅ Access token obtained.")
+
+    print("📞 Fetching call logs from RingCentral...")
+    calls = fetch_call_logs(access_token)
+    print(f"📊 Total calls fetched: {len(calls)}")
+
+    if not calls:
+        raise RuntimeError("No calls with recordings found.")
+
+    # Count matches before saving
+    structured_calls = []
+    for call in calls:
+        if "recording" in call:
+            direction = call.get("direction")
+            client = call.get("from", {}).get("phoneNumber") if direction == "Inbound" else call.get("to", {}).get("phoneNumber")
+            sale = call.get("to", {}).get("phoneNumber") if direction == "Inbound" else call.get("from", {}).get("phoneNumber")
+            formatted_sale = format_phone_number(sale)
+            if formatted_sale in SALE_NUMBERS:
+                structured_calls.append(call)
+
+    print(f"🎯 Matching calls with sales numbers and recordings: {len(structured_calls)}")
+
+    # Save using original logic
+    save_calls_to_json(calls)
+
+    # Confirm file written
+    output_dir = "ring_central_call_logs_cache"
+    if not os.path.exists(output_dir):
+        raise FileNotFoundError("❌ Output folder not found.")
+
+    all_files = [os.path.join(output_dir, f) for f in os.listdir(output_dir) if f.endswith(".json")]
+    if not all_files:
+        raise FileNotFoundError("❌ No JSON files found in output folder.")
+
+    latest_file = max(all_files, key=os.path.getctime)
+    print(f"💾 Latest saved call log: {latest_file}")
+    return latest_file
+
+
 def main():
     access_token = get_access_token_from_refresh_token()
     calls = fetch_call_logs(access_token)
