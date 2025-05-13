@@ -31,6 +31,8 @@ from urllib.parse import urlencode
 import pytz
 from pydub import AudioSegment
 import math
+from utilities import get_latest_json_file
+
 
 
 
@@ -49,7 +51,7 @@ BASE_URL = os.getenv("RINGCENTRAL_BASE_URL", "https://platform.ringcentral.com")
 TOKEN_URL = f"{BASE_URL}/restapi/oauth/token"
 
 # Input file
-MERGED_CALLS_FILE = "irs_matched_calls_cache\merged_calls_with_case_id_2025-05-13_14-36-01.json"
+MERGED_CALLS_FILE = get_latest_json_file("irs_matched_calls_cache")
 TEMP_DIR = "temp_recordings"
 os.makedirs(TEMP_DIR, exist_ok=True)
 

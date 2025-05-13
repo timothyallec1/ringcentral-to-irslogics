@@ -19,11 +19,13 @@ import json
 import requests
 from dotenv import load_dotenv
 from datetime import datetime
+from utilities import get_latest_json_file
+
 
 load_dotenv(".env.local")
 
 API_KEY = os.getenv("IRSLOGICS_API_KEY")
-CASE_CACHE_PATH = "irs_logics_case_logs_cache/cached_case_ids.json"
+CASE_CACHE_ID_PATH = get_latest_json_file("irs_logics_case_ids_cache")
 GET_CASE_URL = "https://choice.irslogics.com/publicapi/2020-02-22/cases/caseinfo"
 
 def fetch_and_cache_irs_logics_cases():
@@ -75,7 +77,7 @@ def fetch_and_cache_irs_logics_cases():
     # Save results
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     filename = f"all_cases_with_numbers_{timestamp}.json"
-    output_path = os.path.join("irs_logics_case_logs_cache", filename)
+    output_path = os.path.join("irs_logics_case_info_cache", filename)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     with open(output_path, "w") as f:
