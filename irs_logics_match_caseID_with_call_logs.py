@@ -33,8 +33,8 @@ from datetime import datetime
 CALLS_FILE = "ring_central_call_logs_cache/calls_2025-05-05_2032.json"
 CASES_FILE = "irs_logics_case_logs_cache/all_cases_with_numbers.json"
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-OUTPUT_FILE = f"ring_central_call_logs_cache/merged_calls_with_case_id_{timestamp}.json"
-UNMATCHED_FILE = f"ring_central_call_logs_cache/unmatched_calls_{timestamp}.json"
+OUTPUT_FILE = f"irs_matched_calls_cache/merged_calls_with_case_id_{timestamp}.json"
+UNMATCHED_FILE = f"irs_unmatched_calls_cache/unmatched_calls_{timestamp}.json"
 
 # Load call logs
 with open(CALLS_FILE, "r") as f:
