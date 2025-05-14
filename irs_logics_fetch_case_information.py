@@ -34,10 +34,10 @@ def fetch_and_cache_irs_logics_cases():
     Filters down to fields relevant for phone number matching.
     Saves to a single JSON file and returns the file path.
     """
-    if not os.path.exists(CASE_CACHE_PATH):
-        raise FileNotFoundError(f"Missing cache file: {CASE_CACHE_PATH}")
+    if not os.path.exists(CASE_CACHE_ID_PATH):
+        raise FileNotFoundError(f"Missing cache file: {CASE_CACHE_ID_PATH}")
 
-    with open(CASE_CACHE_PATH, "r") as f:
+    with open(CASE_CACHE_ID_PATH, "r") as f:
         cache = json.load(f)
 
     all_status_ids = list(cache.keys())

@@ -51,7 +51,8 @@ BASE_URL = os.getenv("RINGCENTRAL_BASE_URL", "https://platform.ringcentral.com")
 TOKEN_URL = f"{BASE_URL}/restapi/oauth/token"
 
 # Input file
-MERGED_CALLS_FILE = get_latest_json_file("irs_matched_calls_cache")
+# MERGED_CALLS_FILE = get_latest_json_file("irs_matched_calls_cache")
+# print(f"[📁] Loaded merged calls file: {MERGED_CALLS_FILE}")
 TEMP_DIR = "temp_recordings"
 os.makedirs(TEMP_DIR, exist_ok=True)
 
@@ -98,31 +99,44 @@ def split_mp3_if_needed(filepath, force_split=False):
 
 
 def get_access_token_from_refresh_token():
+    from dotenv import load_dotenv
+    load_dotenv(".env.local", override=True)
+
+    client_id = os.getenv("RINGCENTRAL_CLIENT_ID")
+    client_secret = os.getenv("RINGCENTRAL_CLIENT_SECRET")
+    refresh_token = os.getenv("RINGCENTRAL_REFRESH_TOKEN")
+    base_url = os.getenv("RINGCENTRAL_BASE_URL", "https://platform.ringcentral.com")
+    token_url = f"{base_url}/restapi/oauth/token"
+
     print("[🔄] Exchanging refresh token for access token...")
+    print(f"[🔐] Using refresh token: {refresh_token[:6]}... (truncated)")
+    print(f"[🌐] Token URL: {token_url}")
+
     data = {
         "grant_type": "refresh_token",
-        "refresh_token": REFRESH_TOKEN
+        "refresh_token": refresh_token
     }
 
-    auth = (CLIENT_ID, CLIENT_SECRET)
-    response = requests.post(TOKEN_URL, data=data, auth=auth)
+    auth = (client_id, client_secret)
+    response = requests.post(token_url, data=data, auth=auth)
 
-    # Debug output
     if response.status_code != 200:
         print("❌ Error response from RingCentral:")
         print("Status Code:", response.status_code)
         print("Response:", response.text)
+        print(f"[DEBUG] client_id: {client_id[:6]}..., client_secret: {client_secret[:6]}...")
         response.raise_for_status()
 
     token_data = response.json()
     access_token = token_data["access_token"]
 
-    # If a new refresh token is returned, save it
+    # Update refresh token if returned
     if "refresh_token" in token_data:
         update_refresh_token_env(token_data["refresh_token"])
 
     print("[✅] Got access token.")
     return access_token
+
 
 
 def update_refresh_token_env(new_token, env_path=".env.local"):
@@ -206,11 +220,14 @@ def upload_to_irslogics(case_id, file_path):
         print(f"[❌] Upload error: {e}")
         return False
 
-def main():
+def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
+    if not merged_calls_file_path:
+        merged_calls_file_path = get_latest_json_file("irs_matched_calls_cache")
+    print(f"[📁] Using merged calls file: {merged_calls_file_path}")
     access_token = get_access_token_from_refresh_token()
 
     # Load matched calls
-    with open(MERGED_CALLS_FILE, "r") as f:
+    with open(merged_calls_file_path, "r") as f:
         call_logs = json.load(f)
 
     success_count = 0
@@ -281,4 +298,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    upload_call_recordings_to_irslogics()

@@ -1,0 +1,570 @@
+[
+  {
+    "call_id": "ITFTXqZIwIaMDUA",
+    "client_number": "(425)366-1651",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-13T23:44:26.072Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2936251267049/content"
+  },
+  {
+    "call_id": "ITEctEnPe_akDUA",
+    "client_number": "(425)366-1651",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-13T23:31:08.260Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2936242018049/content"
+  },
+  {
+    "call_id": "ITEYo3RI2exYDUA",
+    "client_number": "(425)366-1651",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-13T23:30:13.873Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2936241563049/content"
+  },
+  {
+    "call_id": "ISq1w73jUChWDUA",
+    "client_number": "(209)507-5384",
+    "sale_number": "(323)486-6977",
+    "direction": "Inbound",
+    "startTime": "2025-05-13T20:28:35.976Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2935997144049/content"
+  },
+  {
+    "call_id": "ISIS4vuRjpDIDUA",
+    "client_number": "(646)504-3311",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-13T18:13:42.014Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2935704013049/content"
+  },
+  {
+    "call_id": "ISEgIj-3BImQDUA",
+    "client_number": "(818)278-7236",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-13T17:59:22.805Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2935671856049/content"
+  },
+  {
+    "call_id": "ISAgmSH5zO08DUA",
+    "client_number": "(949)228-0776",
+    "sale_number": "(818)649-5689",
+    "direction": "Inbound",
+    "startTime": "2025-05-13T17:43:50.648Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2935638001049/content"
+  },
+  {
+    "call_id": "epKQmxKycjLvzUA",
+    "client_number": "(917)734-7700",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-05-13T00:29:16.924Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2934879512048/content"
+  },
+  {
+    "call_id": "epE8o01nN6-1zUA",
+    "client_number": "(678)800-5174",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-12T23:01:45.577Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2934817767048/content"
+  },
+  {
+    "call_id": "eo0XfGGu8-tNzUA",
+    "client_number": "(606)923-2625",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-05-12T20:59:52.766Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2934654960048/content"
+  },
+  {
+    "call_id": "eooNd8I8k_KXzUA",
+    "client_number": "(951)432-6308",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-05-12T20:09:07.542Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2934549616048/content"
+  },
+  {
+    "call_id": "eokY9WJ1s4i3zUA",
+    "client_number": "(360)510-3863",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-12T19:54:14.389Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2934516581048/content"
+  },
+  {
+    "call_id": "eoZnVeHwCY_1zUA",
+    "client_number": "(859)550-3644",
+    "sale_number": "(818)649-5689",
+    "direction": "Inbound",
+    "startTime": "2025-05-12T19:12:52.676Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2934424668048/content"
+  },
+  {
+    "call_id": "en5POXwX4SVTzUA",
+    "client_number": "(646)504-3311",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-12T17:09:20.964Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2934138015048/content"
+  },
+  {
+    "call_id": "en2yX35VxQoXzUA",
+    "client_number": "(415)454-6260",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-12T16:59:48.204Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2934114862048/content"
+  },
+  {
+    "call_id": "ennQpGCeGZcBzUA",
+    "client_number": "(415)623-6770",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-05-12T16:01:59.912Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2933976977048/content"
+  },
+  {
+    "call_id": "ennBqI6Oh6kJzUA",
+    "client_number": "(347)210-9978",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-12T16:01:11.454Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2933973887048/content"
+  },
+  {
+    "call_id": "enlZg_BO9DYbzUA",
+    "client_number": "(347)210-9978",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-12T15:55:21.232Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2933960465048/content"
+  },
+  {
+    "call_id": "el6ZbGTVfSFnzUA",
+    "client_number": "(352)458-1031",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-09T22:28:39.815Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2932885124048/content"
+  },
+  {
+    "call_id": "elqfpRdUHNMJzUA",
+    "client_number": "(479)321-8462",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-09T20:33:01.666Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2932733307048/content"
+  },
+  {
+    "call_id": "eljyCQKyCEXfzUA",
+    "client_number": "(415)505-5889",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-05-09T20:00:29.626Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2932674285048/content"
+  },
+  {
+    "call_id": "elC_4FXtrCwLzUA",
+    "client_number": "(352)360-3477",
+    "sale_number": "(818)649-5689",
+    "direction": "Inbound",
+    "startTime": "2025-05-09T17:39:28.612Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2932393696048/content"
+  },
+  {
+    "call_id": "elBCBanaCVkrzUA",
+    "client_number": "(423)817-2174",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-09T17:31:09.583Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2932376614048/content"
+  },
+  {
+    "call_id": "elAymW7PYdKJzUA",
+    "client_number": "(352)360-3477",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-05-09T17:30:13.136Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2932374771048/content"
+  },
+  {
+    "call_id": "ek3jcYtqBL1PzUA",
+    "client_number": "(646)504-3311",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-09T16:52:39.894Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2932292034048/content"
+  },
+  {
+    "call_id": "ek26hpchHsx3zUA",
+    "client_number": "(646)504-3311",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-09T16:50:08.552Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2932286736048/content"
+  },
+  {
+    "call_id": "eks6WQTA8YV_zUA",
+    "client_number": "(646)504-3311",
+    "sale_number": "(323)486-6977",
+    "direction": "Inbound",
+    "startTime": "2025-05-09T16:11:07.615Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2932201526048/content"
+  },
+  {
+    "call_id": "ekrIeVZmZjPzzUA",
+    "client_number": "(347)210-9978",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-09T16:04:09.916Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2932186673048/content"
+  },
+  {
+    "call_id": "ejwLGRm3cSBpzUA",
+    "client_number": "(510)827-8233",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-08T23:46:13.999Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2931668513048/content"
+  },
+  {
+    "call_id": "ejtXmPgu7m75zUA",
+    "client_number": "(646)504-3311",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-08T23:04:29.643Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2931638153048/content"
+  },
+  {
+    "call_id": "eiHrtkHxYfE3zUA",
+    "client_number": "(510)827-8233",
+    "sale_number": "(323)486-6977",
+    "direction": "Inbound",
+    "startTime": "2025-05-08T15:16:51.245Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2930747247048/content"
+  },
+  {
+    "call_id": "eiB5ZbOIGf5RzUA",
+    "client_number": "(510)827-8233",
+    "sale_number": "(323)486-6977",
+    "direction": "Inbound",
+    "startTime": "2025-05-08T14:54:17.223Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2930697491048/content"
+  },
+  {
+    "call_id": "eh_zWhhrBxHrzUA",
+    "client_number": "(510)827-8233",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-08T14:45:49.915Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2930679826048/content"
+  },
+  {
+    "call_id": "ehZnvTe7nq9VzUA",
+    "client_number": "(828)302-3798",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-05-08T00:29:24.424Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2930342976048/content"
+  },
+  {
+    "call_id": "ehRpeGBqxYp1zUA",
+    "client_number": "(510)827-8233",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-07T22:30:03.724Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2930254032048/content"
+  },
+  {
+    "call_id": "egfpfw1mWOe3zUA",
+    "client_number": "(859)550-3644",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-05-07T18:29:18.534Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2929799370048/content"
+  },
+  {
+    "call_id": "egX8isbVPs6bzUA",
+    "client_number": "(512)423-8737",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-05-07T17:59:40.523Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2929731693048/content"
+  },
+  {
+    "call_id": "egP63mkZIDMzzUA",
+    "client_number": "(253)508-7007",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-07T17:27:25.088Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2929659878048/content"
+  },
+  {
+    "call_id": "IQh9f2-8VKv2DUA",
+    "client_number": "(646)504-3311",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-06T23:00:18.587Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2928881427049/content"
+  },
+  {
+    "call_id": "IQXGIOOQR2PMDUA",
+    "client_number": "(347)210-9978",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-05-06T21:28:59.212Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2928778276049/content"
+  },
+  {
+    "call_id": "eXOd84PS5h6LzUA",
+    "client_number": "(949)773-5003",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-04-30T21:55:26.093Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2922803792048/content"
+  },
+  {
+    "call_id": "eXLJeYaPTMb9zUA",
+    "client_number": "(800)935-2104",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-04-30T21:33:21.050Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2922771651048/content"
+  },
+  {
+    "call_id": "eWoUpzgDQcEjzUA",
+    "client_number": "(800)935-2104",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-04-30T18:59:10.451Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2922460921048/content"
+  },
+  {
+    "call_id": "eOIWEJ6cZPKXzUA",
+    "client_number": "(614)843-1324",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-04-25T15:55:21.810Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2917273832048/content"
+  },
+  {
+    "call_id": "eK13xOJKSBhhzUA",
+    "client_number": "(562)803-3959",
+    "sale_number": "(818)649-5689",
+    "direction": "Inbound",
+    "startTime": "2025-04-23T22:12:05.804Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2915327453048/content"
+  },
+  {
+    "call_id": "IMuvLc-RG65QDUA",
+    "client_number": "(949)773-5003",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-04-22T16:51:23.207Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2913246066049/content"
+  },
+  {
+    "call_id": "IMuiTzlW6ECUDUA",
+    "client_number": "(949)773-5003",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-04-22T16:50:36.066Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2913244190049/content"
+  },
+  {
+    "call_id": "IMudFWe9qATsDUA",
+    "client_number": "(949)773-5003",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-04-22T16:50:17.950Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2913243552049/content"
+  },
+  {
+    "call_id": "IMpmlDZU12KADUA",
+    "client_number": "(800)477-4580",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-04-22T16:31:53.148Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2913199516049/content"
+  },
+  {
+    "call_id": "IMn8s4E-zwMSDUA",
+    "client_number": "(800)935-2104",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-04-22T16:25:34.678Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2913184296049/content"
+  },
+  {
+    "call_id": "ILKwsdzNNRBgDUA",
+    "client_number": "(800)935-2104",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-04-21T20:32:48.663Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2912322061049/content"
+  },
+  {
+    "call_id": "eIIRRDDDsgPFzUA",
+    "client_number": "(800)344-5000",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-04-19T18:00:43.970Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2910926242048/content"
+  },
+  {
+    "call_id": "eHcD2d9etcUvzUA",
+    "client_number": "(407)252-2010",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-04-18T19:31:10.711Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2910440068048/content"
+  },
+  {
+    "call_id": "eHaTsLrEven7zUA",
+    "client_number": "(760)420-3246",
+    "sale_number": "(818)649-5689",
+    "direction": "Inbound",
+    "startTime": "2025-04-18T19:21:12.301Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2910423478048/content"
+  },
+  {
+    "call_id": "eG6b31R2bhuLzUA",
+    "client_number": "(800)477-4580",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-04-18T16:32:10.813Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2910125781048/content"
+  },
+  {
+    "call_id": "eCu6zVy248U7zUA",
+    "client_number": "(800)344-5000",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-04-16T17:37:03.166Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2907639421048/content"
+  },
+  {
+    "call_id": "eCg4IPJux2GbzUA",
+    "client_number": "(248)290-6288",
+    "sale_number": "(818)649-5689",
+    "direction": "Inbound",
+    "startTime": "2025-04-16T16:40:46.229Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2907510216048/content"
+  },
+  {
+    "call_id": "IH2SPELNKbumDUA",
+    "client_number": "(801)605-1816",
+    "sale_number": "(213)291-9409",
+    "direction": "Inbound",
+    "startTime": "2025-04-15T17:01:10.576Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2906134427049/content"
+  },
+  {
+    "call_id": "eA4ss-fV6Y09zUA",
+    "client_number": "(800)344-5000",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-04-14T20:16:36.004Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2905142674048/content"
+  },
+  {
+    "call_id": "eAyE2wiqoWgZzUA",
+    "client_number": "(800)344-5000",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-04-14T19:50:52.954Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2905085693048/content"
+  },
+  {
+    "call_id": "d__rtkCwLEd9zUA",
+    "client_number": "(800)935-2104",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-04-14T16:41:26.652Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2904638881048/content"
+  },
+  {
+    "call_id": "d_uI9gBqSJ63zUA",
+    "client_number": "(800)882-3610",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-04-14T15:37:40.649Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2904480789048/content"
+  },
+  {
+    "call_id": "d_tvsZCRyY0lzUA",
+    "client_number": "(800)882-3610",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-04-14T15:36:17.495Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2904477152048/content"
+  },
+  {
+    "call_id": "IFcGo-9q8h0iDUA",
+    "client_number": "(845)422-6263",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-04-11T16:31:02.821Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2902752926049/content"
+  },
+  {
+    "call_id": "d-AEsufzg0f1zUA",
+    "client_number": "(800)477-4580",
+    "sale_number": "(323)486-6977",
+    "direction": "Outbound",
+    "startTime": "2025-04-10T22:07:12.023Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2902086260048/content"
+  },
+  {
+    "call_id": "d7Uer1hjEZo1zUA",
+    "client_number": "(213)386-7173",
+    "sale_number": "(818)649-5689",
+    "direction": "Inbound",
+    "startTime": "2025-04-09T20:23:17.064Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2900527279048/content"
+  },
+  {
+    "call_id": "d5K6lBKuwztvzUA",
+    "client_number": "(213)386-7173",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-04-08T22:52:26.295Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2899369839048/content"
+  },
+  {
+    "call_id": "d5EGKlR7nB6_zUA",
+    "client_number": "(423)718-5323",
+    "sale_number": "(818)649-5689",
+    "direction": "Inbound",
+    "startTime": "2025-04-08T21:52:13.827Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2899299749048/content"
+  },
+  {
+    "call_id": "d40NTY_WsZB7zUA",
+    "client_number": "(423)718-5323",
+    "sale_number": "(818)649-5689",
+    "direction": "Outbound",
+    "startTime": "2025-04-08T20:29:58.930Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2899157076048/content"
+  },
+  {
+    "call_id": "d4leBR14fmfpzUA",
+    "client_number": "(423)718-5323",
+    "sale_number": "(818)649-5689",
+    "direction": "Inbound",
+    "startTime": "2025-04-08T19:31:34.509Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2899029481048/content"
+  },
+  {
+    "call_id": "d4lS8eIQ6-ubzUA",
+    "client_number": "(423)718-5323",
+    "sale_number": "(818)649-5689",
+    "direction": "Inbound",
+    "startTime": "2025-04-08T19:30:54.029Z",
+    "recording_uri": "https://media.ringcentral.com/restapi/v1.0/account/747808048/recording/2899028552048/content"
+  }
+]
