@@ -4,6 +4,7 @@ import requests
 from time import sleep
 from dotenv import load_dotenv
 from datetime import datetime
+from utilities import get_latest_json_file
 
 
 def fetch_and_cache_case_ids() -> str:
@@ -21,6 +22,14 @@ def fetch_and_cache_case_ids() -> str:
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+    # Load previous case cache if available
+    try:
+        prev_file = get_latest_json_file(OUTPUT_DIR)
+        with open(prev_file, "r") as f:
+            previous_cache = json.load(f)
+    except Exception:
+        previous_cache = {}
+
     with open(STATUS_FILE, "r") as f:
         statuses = json.load(f)
 
@@ -28,10 +37,12 @@ def fetch_and_cache_case_ids() -> str:
     case_cache = {}
 
     for entry in statuses:
-        status_id = entry["StatusID"]
+        status_id = str(entry["StatusID"])
         status_name = entry["StatusName"]
 
-        print(f"[🔍] Fetching CaseIDs for: {status_name} (StatusID: {status_id})")
+        # Skip if previously cached and assume unchanged
+        prev_ids = previous_cache.get(status_id, [])
+        print(f"[🔍] Checking {status_name} (StatusID: {status_id})")
 
         try:
             params = {
@@ -43,21 +54,29 @@ def fetch_and_cache_case_ids() -> str:
             data = response.json()
 
             if data["status"] == "success":
-                case_ids = data.get("data", [])
-                print(f"[✅] Found {len(case_ids)} case IDs.")
-                case_cache[str(status_id)] = case_ids
+                current_ids = data.get("data", [])
+
+                if set(current_ids) == set(prev_ids):
+                    print(f"[⏩] Skipped — no change from previous cache.")
+                    case_cache[status_id] = prev_ids  # use previous
+                    continue
+
+                print(f"[✅] Found {len(current_ids)} case IDs (updated).")
+                case_cache[status_id] = current_ids
             else:
                 print(f"[⚠️] Failed response: {data.get('message')}")
+                case_cache[status_id] = prev_ids  # fallback to previous
 
         except Exception as e:
             print(f"[❌] Error fetching StatusID {status_id}: {e}")
+            case_cache[status_id] = prev_ids  # fallback to previous
 
         sleep(1)
 
     with open(OUTPUT_FILE, "w") as f:
         json.dump(case_cache, f, indent=2)
 
-    print(f"[💾] Rebuilt case cache and saved to: {OUTPUT_FILE}")
+    print(f"[💾] Case cache saved to: {OUTPUT_FILE}")
     return OUTPUT_FILE
 
 

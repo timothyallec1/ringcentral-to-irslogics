@@ -20,20 +20,34 @@ import requests
 from dotenv import load_dotenv
 from datetime import datetime
 from utilities import get_latest_json_file
+from time import sleep
 
 
-load_dotenv(".env.local")
+# load_dotenv(".env.local")
 
-API_KEY = os.getenv("IRSLOGICS_API_KEY")
-CASE_CACHE_ID_PATH = get_latest_json_file("irs_logics_case_ids_cache")
-GET_CASE_URL = "https://choice.irslogics.com/publicapi/2020-02-22/cases/caseinfo"
+# API_KEY = os.getenv("IRSLOGICS_API_KEY")
+# CASE_CACHE_ID_PATH = get_latest_json_file("irs_logics_case_ids_cache")
+# GET_CASE_URL = "https://choice.irslogics.com/publicapi/2020-02-22/cases/caseinfo"
 
 def fetch_and_cache_irs_logics_cases():
-    """
-    Fetches case info from IRS Logics based on cached CaseIDs.
-    Filters down to fields relevant for phone number matching.
-    Saves to a single JSON file and returns the file path.
-    """
+    load_dotenv(".env.local")
+    API_KEY = os.getenv("IRSLOGICS_API_KEY")
+    CASE_CACHE_ID_PATH = get_latest_json_file("irs_logics_case_ids_cache")
+    GET_CASE_URL = "https://choice.irslogics.com/publicapi/2020-02-22/cases/caseinfo"
+    OUTPUT_DIR = "irs_logics_case_info_cache"
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    output_path = os.path.join(OUTPUT_DIR, f"all_cases_with_numbers_{timestamp}.json")
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    # Load the previous full case info log (if exists)
+    try:
+        previous_log = get_latest_json_file(OUTPUT_DIR)
+        with open(previous_log, "r") as f:
+            previous_entries = json.load(f)
+            prev_cases_by_id = {str(entry["CaseID"]): entry for entry in previous_entries}
+    except Exception:
+        prev_cases_by_id = {}
+
     if not os.path.exists(CASE_CACHE_ID_PATH):
         raise FileNotFoundError(f"Missing cache file: {CASE_CACHE_ID_PATH}")
 
@@ -42,13 +56,22 @@ def fetch_and_cache_irs_logics_cases():
 
     all_status_ids = list(cache.keys())
     results = []
+    skipped = 0
+    fetched = 0
 
     for status_id in all_status_ids:
         case_ids = cache[status_id]
         print(f"\n[🔁] StatusID: {status_id} — Total Cases: {len(case_ids)}")
 
         for i, case_id in enumerate(case_ids):
-            print(f"📁 Case #{i+1} — CaseID: {case_id}")
+            str_case_id = str(case_id)
+
+            if str_case_id in prev_cases_by_id:
+                results.append(prev_cases_by_id[str_case_id])
+                skipped += 1
+                continue
+
+            print(f"📁 Fetching Case #{i+1} — CaseID: {case_id}")
             try:
                 response = requests.get(GET_CASE_URL, params={
                     "apikey": API_KEY,
@@ -70,20 +93,18 @@ def fetch_and_cache_irs_logics_cases():
                     "WorkPhone": case.get("WorkPhone")
                 }
                 results.append(result)
+                fetched += 1
 
             except Exception as e:
                 print(f"❌ Error fetching CaseID {case_id}: {e}")
 
-    # Save results
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"all_cases_with_numbers_{timestamp}.json"
-    output_path = os.path.join("irs_logics_case_info_cache", filename)
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            sleep(0.3)
 
     with open(output_path, "w") as f:
         json.dump(results, f, indent=2)
 
     print(f"\n✅ Saved {len(results)} case contact entries to {output_path}")
+    print(f"🔁 Reused {skipped} | 🌐 Fetched {fetched}")
     return output_path
 
 # Optional: allow standalone usage
