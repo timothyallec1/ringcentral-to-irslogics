@@ -229,8 +229,21 @@ def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
     # Load matched calls
     with open(merged_calls_file_path, "r") as f:
         call_logs = json.load(f)
+        
+    # Only process calls that haven't been marked as uploaded
+    calls_to_upload = [c for c in call_logs if not c.get("uploaded")]
+
+    if not calls_to_upload:
+        print("✅ All calls in this file have already been uploaded. Nothing to do.")
+        return
 
     success_count = 0
+
+    # Load previously uploaded call_ids from latest merged_calls_with_case_id
+    previous_log = get_latest_json_file("irs_matched_calls_cache")
+    with open(previous_log, "r") as f:
+        previously_uploaded = {entry["call_id"] for entry in json.load(f)}
+
 
     for i, call in enumerate(call_logs, start=1):
         call_id = call["call_id"]
@@ -240,6 +253,10 @@ def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
         filename = format_filename(start_time)
 
         print(f"\n[{i}/{len(call_logs)}] Processing call {call_id} for CaseID {case_id}")
+
+        if call_id in previously_uploaded:
+            print(f"[⏩] Skipping previously uploaded call: {call_id}")
+            continue
 
         # Download recording
         if not download_recording(recording_uri, access_token, filename):
