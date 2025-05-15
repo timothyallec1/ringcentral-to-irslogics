@@ -1,13 +1,84 @@
 # ringcentral-to-irslogics
 
-ordered list of files to run:
+📞🔗 IRS Logics + RingCentral Automation Workflow
+This automation system integrates RingCentral call logs with IRS Logics case records. It processes call recordings, matches them to IRS cases via phone numbers, and uploads valid recordings to the IRS Logics system.
 
-ring_central_get_tokens.py – (only needed once to get your refresh token)
+🚀 Overview
+The core automation is executed via the automate_ringcentral_to_irslogics() function, which orchestrates the following 5 steps:
 
-irs_logics_fetch_cases.py – fetch all IRS Logics cases with phone numbers
+🔁 Workflow Breakdown
+📞 Step 1: Fetch RingCentral Call Logs
+Function: fetch_and_cache_ringcentral_calls()
 
-ring_central_fetch_calls.py – fetch RingCentral calls with recordings
+Action: Retrieves call logs from RingCentral using a refresh token.
 
-irs_logics_match_caseID_with_call_logs.py – match calls to IRS Logics CaseIDs
+Filters: Includes only sales team numbers and calls with recordings.
 
-irs_logics_upload_call_recordings.py – upload recordings to IRS Logics
+Output:
+
+✅ JSON cache: ring_central_call_logs_cache/calls_<timestamp>.json
+
+🎙 First recording downloaded to local .mp3 for verification.
+
+📄 Step 2: Fetch IRS Logics Case IDs by StatusID
+Function: fetch_and_cache_case_ids()
+
+Action: Pulls CaseIDs grouped by StatusID from IRS Logics API.
+
+Optimized: Compares against previous logs to avoid redundant fetches.
+
+Output:
+
+📁 JSON cache: irs_logics_case_ids_cache/all_case_ids_<timestamp>.json
+
+📂 Step 3: Fetch IRS Logics Case Info (Phone Numbers)
+Function: fetch_and_cache_irs_logics_cases()
+
+Action: Fetches full contact details (Name, CellPhone, etc.) for each CaseID.
+
+Optimized: Optional deduping if same CaseID already exists in previous logs.
+
+Output:
+
+🧾 JSON cache: irs_logics_case_info_cache/all_cases_with_numbers_<timestamp>.json
+
+🔗 Step 4: Match Calls to IRS Logics Cases
+Function: match_calls_to_cases(call_log_path, case_log_path)
+
+Action: Cross-matches client_number from RingCentral calls with any of:
+
+CellPhone, HomePhone, or WorkPhone in case data.
+
+Output:
+
+✅ Matched: irs_matched_calls_cache/merged_calls_with_case_id_<timestamp>.json
+
+⚠️ Unmatched: irs_unmatched_calls_cache/unmatched_calls_<timestamp>.json
+
+⬆️ Step 5: Upload Recordings to IRS Logics
+Function: upload_call_recordings_to_irslogics()
+
+Action:
+
+Downloads call recording via RingCentral API
+
+Splits recording if it exceeds 5.99 MB
+
+Uploads recording (or parts) to IRS Logics via document upload API
+
+Smart Check: Skips uploading calls already present in the latest merged log.
+
+Output:
+
+🎧 MP3s stored temporarily in temp_recordings/ (auto-deleted after upload)
+
+🪵 Console log shows detailed status for each call
+
+🧠 Example Logs
+Step	Folder	File Pattern	Purpose
+Step 1	ring_central_call_logs_cache/	calls_<timestamp>.json	Fetched RingCentral call logs
+Step 2	irs_logics_case_ids_cache/	all_case_ids_<timestamp>.json	Cached StatusID → CaseIDs
+Step 3	irs_logics_case_info_cache/	all_cases_with_numbers_<timestamp>.json	Case contact info
+Step 4	irs_matched_calls_cache/	merged_calls_with_case_id_<timestamp>.json	Matched calls with CaseIDs
+Step 4	irs_unmatched_calls_cache/	unmatched_calls_<timestamp>.json	Calls with no matching case
+Step 5	temp_recordings/	call_<timestamp>.mp3	Downloaded audio recordings
