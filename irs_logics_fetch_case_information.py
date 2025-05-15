@@ -29,7 +29,7 @@ from time import sleep
 # CASE_CACHE_ID_PATH = get_latest_json_file("irs_logics_case_ids_cache")
 # GET_CASE_URL = "https://choice.irslogics.com/publicapi/2020-02-22/cases/caseinfo"
 
-def fetch_and_cache_irs_logics_cases():
+def fetch_and_cache_irs_logics_cases(force_refresh: bool = False):
     load_dotenv(".env.local")
     API_KEY = os.getenv("IRSLOGICS_API_KEY")
     CASE_CACHE_ID_PATH = get_latest_json_file("irs_logics_case_ids_cache")
@@ -39,14 +39,16 @@ def fetch_and_cache_irs_logics_cases():
     output_path = os.path.join(OUTPUT_DIR, f"all_cases_with_numbers_{timestamp}.json")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # Load the previous full case info log (if exists)
-    try:
-        previous_log = get_latest_json_file(OUTPUT_DIR)
-        with open(previous_log, "r") as f:
-            previous_entries = json.load(f)
-            prev_cases_by_id = {str(entry["CaseID"]): entry for entry in previous_entries}
-    except Exception:
-        prev_cases_by_id = {}
+    # Load previous case info if available and not forcing refresh
+    prev_cases_by_id = {}
+    if not force_refresh:
+        try:
+            previous_log = get_latest_json_file(OUTPUT_DIR)
+            with open(previous_log, "r") as f:
+                previous_entries = json.load(f)
+                prev_cases_by_id = {str(entry["CaseID"]): entry for entry in previous_entries}
+        except Exception:
+            pass  # no previous cache found
 
     if not os.path.exists(CASE_CACHE_ID_PATH):
         raise FileNotFoundError(f"Missing cache file: {CASE_CACHE_ID_PATH}")
@@ -54,19 +56,17 @@ def fetch_and_cache_irs_logics_cases():
     with open(CASE_CACHE_ID_PATH, "r") as f:
         cache = json.load(f)
 
-    all_status_ids = list(cache.keys())
     results = []
     skipped = 0
     fetched = 0
 
-    for status_id in all_status_ids:
-        case_ids = cache[status_id]
+    for status_id, case_ids in cache.items():
         print(f"\n[🔁] StatusID: {status_id} — Total Cases: {len(case_ids)}")
 
         for i, case_id in enumerate(case_ids):
             str_case_id = str(case_id)
 
-            if str_case_id in prev_cases_by_id:
+            if not force_refresh and str_case_id in prev_cases_by_id:
                 results.append(prev_cases_by_id[str_case_id])
                 skipped += 1
                 continue
@@ -104,8 +104,9 @@ def fetch_and_cache_irs_logics_cases():
         json.dump(results, f, indent=2)
 
     print(f"\n✅ Saved {len(results)} case contact entries to {output_path}")
-    print(f"🔁 Reused {skipped} | 🌐 Fetched {fetched}")
+    print(f"⏩ Skipped from cache: {skipped} | 🌐 Fetched from API: {fetched}")
     return output_path
+
 
 # Optional: allow standalone usage
 if __name__ == "__main__":
