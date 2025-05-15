@@ -29,6 +29,7 @@ from time import sleep
 # CASE_CACHE_ID_PATH = get_latest_json_file("irs_logics_case_ids_cache")
 # GET_CASE_URL = "https://choice.irslogics.com/publicapi/2020-02-22/cases/caseinfo"
 
+# force refresh flag set it to true if you want case info to be fetched again for all cases
 def fetch_and_cache_irs_logics_cases(force_refresh: bool = False):
     load_dotenv(".env.local")
     API_KEY = os.getenv("IRSLOGICS_API_KEY")
