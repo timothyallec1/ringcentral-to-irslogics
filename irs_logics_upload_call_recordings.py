@@ -31,6 +31,8 @@ from urllib.parse import urlencode
 import pytz
 from pydub import AudioSegment
 import math
+from utilities import get_latest_json_file
+
 
 
 
@@ -49,7 +51,8 @@ BASE_URL = os.getenv("RINGCENTRAL_BASE_URL", "https://platform.ringcentral.com")
 TOKEN_URL = f"{BASE_URL}/restapi/oauth/token"
 
 # Input file
-MERGED_CALLS_FILE = "ring_central_call_logs_cache/merged_calls_with_case_id_2025-05-05_21-43-15.json"
+# MERGED_CALLS_FILE = get_latest_json_file("irs_matched_calls_cache")
+# print(f"[📁] Loaded merged calls file: {MERGED_CALLS_FILE}")
 TEMP_DIR = "temp_recordings"
 os.makedirs(TEMP_DIR, exist_ok=True)
 
@@ -96,31 +99,44 @@ def split_mp3_if_needed(filepath, force_split=False):
 
 
 def get_access_token_from_refresh_token():
+    from dotenv import load_dotenv
+    load_dotenv(".env.local", override=True)
+
+    client_id = os.getenv("RINGCENTRAL_CLIENT_ID")
+    client_secret = os.getenv("RINGCENTRAL_CLIENT_SECRET")
+    refresh_token = os.getenv("RINGCENTRAL_REFRESH_TOKEN")
+    base_url = os.getenv("RINGCENTRAL_BASE_URL", "https://platform.ringcentral.com")
+    token_url = f"{base_url}/restapi/oauth/token"
+
     print("[🔄] Exchanging refresh token for access token...")
+    print(f"[🔐] Using refresh token: {refresh_token[:6]}... (truncated)")
+    print(f"[🌐] Token URL: {token_url}")
+
     data = {
         "grant_type": "refresh_token",
-        "refresh_token": REFRESH_TOKEN
+        "refresh_token": refresh_token
     }
 
-    auth = (CLIENT_ID, CLIENT_SECRET)
-    response = requests.post(TOKEN_URL, data=data, auth=auth)
+    auth = (client_id, client_secret)
+    response = requests.post(token_url, data=data, auth=auth)
 
-    # Debug output
     if response.status_code != 200:
         print("❌ Error response from RingCentral:")
         print("Status Code:", response.status_code)
         print("Response:", response.text)
+        print(f"[DEBUG] client_id: {client_id[:6]}..., client_secret: {client_secret[:6]}...")
         response.raise_for_status()
 
     token_data = response.json()
     access_token = token_data["access_token"]
 
-    # If a new refresh token is returned, save it
+    # Update refresh token if returned
     if "refresh_token" in token_data:
         update_refresh_token_env(token_data["refresh_token"])
 
     print("[✅] Got access token.")
     return access_token
+
 
 
 def update_refresh_token_env(new_token, env_path=".env.local"):
@@ -204,14 +220,30 @@ def upload_to_irslogics(case_id, file_path):
         print(f"[❌] Upload error: {e}")
         return False
 
-def main():
+def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
+    if not merged_calls_file_path:
+        merged_calls_file_path = get_latest_json_file("irs_matched_calls_cache")
+    print(f"[📁] Using merged calls file: {merged_calls_file_path}")
     access_token = get_access_token_from_refresh_token()
 
     # Load matched calls
-    with open(MERGED_CALLS_FILE, "r") as f:
+    with open(merged_calls_file_path, "r") as f:
         call_logs = json.load(f)
+        
+    # Only process calls that haven't been marked as uploaded
+    calls_to_upload = [c for c in call_logs if not c.get("uploaded")]
+
+    if not calls_to_upload:
+        print("✅ All calls in this file have already been uploaded. Nothing to do.")
+        return
 
     success_count = 0
+
+    # Load previously uploaded call_ids from latest merged_calls_with_case_id
+    previous_log = get_latest_json_file("irs_matched_calls_cache")
+    with open(previous_log, "r") as f:
+        previously_uploaded = {entry["call_id"] for entry in json.load(f)}
+
 
     for i, call in enumerate(call_logs, start=1):
         call_id = call["call_id"]
@@ -221,6 +253,10 @@ def main():
         filename = format_filename(start_time)
 
         print(f"\n[{i}/{len(call_logs)}] Processing call {call_id} for CaseID {case_id}")
+
+        if call_id in previously_uploaded:
+            print(f"[⏩] Skipping previously uploaded call: {call_id}")
+            continue
 
         # Download recording
         if not download_recording(recording_uri, access_token, filename):
@@ -279,4 +315,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    upload_call_recordings_to_irslogics()
