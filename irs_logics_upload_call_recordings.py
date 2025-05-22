@@ -254,9 +254,9 @@ def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
 
         print(f"\n[{i}/{len(call_logs)}] Processing call {call_id} for CaseID {case_id}")
 
-        if call_id in previously_uploaded:
-            print(f"[⏩] Skipping previously uploaded call: {call_id}")
-            continue
+        # if call_id in previously_uploaded:
+        #     print(f"[⏩] Skipping previously uploaded call: {call_id}")
+        #     continue
 
         # Download recording
         if not download_recording(recording_uri, access_token, filename):
