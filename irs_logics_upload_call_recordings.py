@@ -37,7 +37,9 @@ from utilities import get_latest_json_file
 
 
 # Load environment variables
-load_dotenv(".env.local")
+# Load from .env.local if present (for local dev), otherwise Azure will use Function App settings
+if os.path.exists(".env.local"):
+    load_dotenv(".env.local")
 
 # IRS Logics
 IRSLOGICS_API_KEY = os.getenv("IRSLOGICS_API_KEY")
@@ -100,7 +102,9 @@ def split_mp3_if_needed(filepath, force_split=False):
 
 def get_access_token_from_refresh_token():
     from dotenv import load_dotenv
-    load_dotenv(".env.local", override=True)
+    # Only load .env.local if it exists (for local development)
+    if os.path.exists(".env.local"):
+        load_dotenv(".env.local", override=True)
 
     client_id = os.getenv("RINGCENTRAL_CLIENT_ID")
     client_secret = os.getenv("RINGCENTRAL_CLIENT_SECRET")

@@ -37,7 +37,9 @@ import json
 
 
 # Load secrets
-load_dotenv(".env.local")
+# Load from .env.local if present (for local dev), otherwise Azure will use Function App settings
+if os.path.exists(".env.local"):
+    load_dotenv(".env.local")
 
 # Env variables
 CLIENT_ID = os.getenv("RINGCENTRAL_CLIENT_ID")

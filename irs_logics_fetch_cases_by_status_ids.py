@@ -13,7 +13,9 @@ def fetch_and_cache_case_ids() -> str:
     Saves them to a timestamped JSON in irs_logics_case_ids_cache.
     Returns the output file path.
     """
-    load_dotenv(".env.local")
+    # Load from .env.local if present (for local dev), otherwise Azure will use Function App settings
+    if os.path.exists(".env.local"):
+        load_dotenv(".env.local")
     API_KEY = os.getenv("IRSLOGICS_API_KEY")
     STATUS_FILE = "irs_logics_status_id.json"
     OUTPUT_DIR = "irs_logics_case_ids_cache"

@@ -34,7 +34,9 @@ import webbrowser
 from dotenv import load_dotenv
 
 # Load client credentials
-load_dotenv(".env.local")
+# Load from .env.local if present (for local dev), otherwise Azure will use Function App settings
+if os.path.exists(".env.local"):
+    load_dotenv(".env.local")
 
 CLIENT_ID = os.getenv("RINGCENTRAL_CLIENT_ID")
 CLIENT_SECRET = os.getenv("RINGCENTRAL_CLIENT_SECRET")
