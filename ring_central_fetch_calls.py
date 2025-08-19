@@ -92,6 +92,7 @@ def get_access_token_from_refresh_token():
     # If a new refresh token is returned, save it
     if "refresh_token" in token_data:
         update_refresh_token_env(token_data["refresh_token"])
+        print("[✅] New refresh token saved to .env.local.")
 
     print("[✅] Got access token.")
     return access_token
