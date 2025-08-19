@@ -32,6 +32,8 @@ import pytz
 from pydub import AudioSegment
 import math
 from utilities import get_latest_json_file
+from ringcentral_update_azure_refresh_token import load_refresh_token, save_refresh_token
+
 
 
 
@@ -48,7 +50,7 @@ IRSLOGICS_UPLOAD_URL = "https://choice.irslogics.com/publicapi/documents/casedoc
 # RingCentral
 CLIENT_ID = os.getenv("RINGCENTRAL_CLIENT_ID")
 CLIENT_SECRET = os.getenv("RINGCENTRAL_CLIENT_SECRET")
-REFRESH_TOKEN = os.getenv("RINGCENTRAL_REFRESH_TOKEN")
+# REFRESH_TOKEN = os.getenv("RINGCENTRAL_REFRESH_TOKEN")
 BASE_URL = os.getenv("RINGCENTRAL_BASE_URL", "https://platform.ringcentral.com")
 TOKEN_URL = f"{BASE_URL}/restapi/oauth/token"
 
@@ -99,74 +101,104 @@ def split_mp3_if_needed(filepath, force_split=False):
     return new_files
 
 
-
 def get_access_token_from_refresh_token():
-    from dotenv import load_dotenv
-    # Only load .env.local if it exists (for local development)
-    if os.path.exists(".env.local"):
-        load_dotenv(".env.local", override=True)
-
-    client_id = os.getenv("RINGCENTRAL_CLIENT_ID")
-    client_secret = os.getenv("RINGCENTRAL_CLIENT_SECRET")
-    refresh_token = os.getenv("RINGCENTRAL_REFRESH_TOKEN")
-    base_url = os.getenv("RINGCENTRAL_BASE_URL", "https://platform.ringcentral.com")
-    token_url = f"{base_url}/restapi/oauth/token"
-
     print("[🔄] Exchanging refresh token for access token...")
-    print(f"[🔐] Using refresh token: {refresh_token[:6]}... (truncated)")
-    print(f"[🌐] Token URL: {token_url}")
+    refresh_token = load_refresh_token()  # ✅ read from /home/refresh_token.txt or fallback to env
 
     data = {
         "grant_type": "refresh_token",
         "refresh_token": refresh_token
     }
 
-    auth = (client_id, client_secret)
-    response = requests.post(token_url, data=data, auth=auth)
+    auth = (CLIENT_ID, CLIENT_SECRET)
+    response = requests.post(TOKEN_URL, data=data, auth=auth)
 
     if response.status_code != 200:
         print("❌ Error response from RingCentral:")
         print("Status Code:", response.status_code)
         print("Response:", response.text)
-        print(f"[DEBUG] client_id: {client_id[:6]}..., client_secret: {client_secret[:6]}...")
         response.raise_for_status()
 
     token_data = response.json()
     access_token = token_data["access_token"]
 
-    # Update refresh token if returned
+    # Save new refresh token if provided
     if "refresh_token" in token_data:
-        update_refresh_token_env(token_data["refresh_token"])
-        print("[✅] New refresh token saved to .env.local.")
+        save_refresh_token(token_data["refresh_token"])  # ✅ write to /home/refresh_token.txt
 
     print("[✅] Got access token.")
     return access_token
 
 
 
-def update_refresh_token_env(new_token, env_path=".env.local"):
-    print("[💾] Updating .env.local with new refresh token...")
-    lines = []
-    updated = False
 
-    # Read existing lines
-    with open(env_path, "r") as f:
-        for line in f:
-            if line.startswith("RINGCENTRAL_REFRESH_TOKEN="):
-                lines.append(f"RINGCENTRAL_REFRESH_TOKEN={new_token}\n")
-                updated = True
-            else:
-                lines.append(line)
+# def get_access_token_from_refresh_token():
+#     from dotenv import load_dotenv
+#     # Only load .env.local if it exists (for local development)
+#     if os.path.exists(".env.local"):
+#         load_dotenv(".env.local", override=True)
 
-    # If token wasn't found, append it
-    if not updated:
-        lines.append(f"RINGCENTRAL_REFRESH_TOKEN={new_token}\n")
+#     client_id = os.getenv("RINGCENTRAL_CLIENT_ID")
+#     client_secret = os.getenv("RINGCENTRAL_CLIENT_SECRET")
+#     refresh_token = os.getenv("RINGCENTRAL_REFRESH_TOKEN")
+#     base_url = os.getenv("RINGCENTRAL_BASE_URL", "https://platform.ringcentral.com")
+#     token_url = f"{base_url}/restapi/oauth/token"
 
-    # Write back the updated content
-    with open(env_path, "w") as f:
-        f.writelines(lines)
+#     print("[🔄] Exchanging refresh token for access token...")
+#     print(f"[🔐] Using refresh token: {refresh_token[:6]}... (truncated)")
+#     print(f"[🌐] Token URL: {token_url}")
 
-    print("[✅] .env.local updated.")
+#     data = {
+#         "grant_type": "refresh_token",
+#         "refresh_token": refresh_token
+#     }
+
+#     auth = (client_id, client_secret)
+#     response = requests.post(token_url, data=data, auth=auth)
+
+#     if response.status_code != 200:
+#         print("❌ Error response from RingCentral:")
+#         print("Status Code:", response.status_code)
+#         print("Response:", response.text)
+#         print(f"[DEBUG] client_id: {client_id[:6]}..., client_secret: {client_secret[:6]}...")
+#         response.raise_for_status()
+
+#     token_data = response.json()
+#     access_token = token_data["access_token"]
+
+#     # Update refresh token if returned
+#     if "refresh_token" in token_data:
+#         update_refresh_token_env(token_data["refresh_token"])
+#         print("[✅] New refresh token saved to .env.local.")
+
+#     print("[✅] Got access token.")
+#     return access_token
+
+
+
+# def update_refresh_token_env(new_token, env_path=".env.local"):
+#     print("[💾] Updating .env.local with new refresh token...")
+#     lines = []
+#     updated = False
+
+#     # Read existing lines
+#     with open(env_path, "r") as f:
+#         for line in f:
+#             if line.startswith("RINGCENTRAL_REFRESH_TOKEN="):
+#                 lines.append(f"RINGCENTRAL_REFRESH_TOKEN={new_token}\n")
+#                 updated = True
+#             else:
+#                 lines.append(line)
+
+#     # If token wasn't found, append it
+#     if not updated:
+#         lines.append(f"RINGCENTRAL_REFRESH_TOKEN={new_token}\n")
+
+#     # Write back the updated content
+#     with open(env_path, "w") as f:
+#         f.writelines(lines)
+
+#     print("[✅] .env.local updated.")
 
 
 def format_filename(start_time_str):

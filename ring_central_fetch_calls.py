@@ -34,6 +34,8 @@ import requests
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 import json
+from ringcentral_update_azure_refresh_token import load_refresh_token, save_refresh_token
+
 
 
 # Load secrets
@@ -44,7 +46,7 @@ if os.path.exists(".env.local"):
 # Env variables
 CLIENT_ID = os.getenv("RINGCENTRAL_CLIENT_ID")
 CLIENT_SECRET = os.getenv("RINGCENTRAL_CLIENT_SECRET")
-REFRESH_TOKEN = os.getenv("RINGCENTRAL_REFRESH_TOKEN")
+# REFRESH_TOKEN = os.getenv("RINGCENTRAL_REFRESH_TOKEN")
 BASE_URL = os.getenv("RINGCENTRAL_BASE_URL", "https://platform.ringcentral.com")
 
 TOKEN_URL = f"{BASE_URL}/restapi/oauth/token"
@@ -68,12 +70,13 @@ SALE_NUMBERS = {
     "(855)477-5436",  # Tim Allec
 }
 
-
 def get_access_token_from_refresh_token():
     print("[🔄] Exchanging refresh token for access token...")
+    refresh_token = load_refresh_token()   # ✅ read from /home/refresh_token.txt or fallback to env
+
     data = {
         "grant_type": "refresh_token",
-        "refresh_token": REFRESH_TOKEN
+        "refresh_token": refresh_token
     }
 
     auth = (CLIENT_ID, CLIENT_SECRET)
@@ -91,36 +94,65 @@ def get_access_token_from_refresh_token():
 
     # If a new refresh token is returned, save it
     if "refresh_token" in token_data:
-        update_refresh_token_env(token_data["refresh_token"])
-        print("[✅] New refresh token saved to .env.local.")
+        save_refresh_token(token_data["refresh_token"])  # ✅ write to /home/refresh_token.txt
 
     print("[✅] Got access token.")
     return access_token
 
 
-def update_refresh_token_env(new_token, env_path=".env.local"):
-    print("[💾] Updating .env.local with new refresh token...")
-    lines = []
-    updated = False
 
-    # Read existing lines
-    with open(env_path, "r") as f:
-        for line in f:
-            if line.startswith("RINGCENTRAL_REFRESH_TOKEN="):
-                lines.append(f"RINGCENTRAL_REFRESH_TOKEN={new_token}\n")
-                updated = True
-            else:
-                lines.append(line)
+# def get_access_token_from_refresh_token():
+#     print("[🔄] Exchanging refresh token for access token...")
+#     data = {
+#         "grant_type": "refresh_token",
+#         "refresh_token": REFRESH_TOKEN
+#     }
 
-    # If token wasn't found, append it
-    if not updated:
-        lines.append(f"RINGCENTRAL_REFRESH_TOKEN={new_token}\n")
+#     auth = (CLIENT_ID, CLIENT_SECRET)
+#     response = requests.post(TOKEN_URL, data=data, auth=auth)
 
-    # Write back the updated content
-    with open(env_path, "w") as f:
-        f.writelines(lines)
+#     # Debug output
+#     if response.status_code != 200:
+#         print("❌ Error response from RingCentral:")
+#         print("Status Code:", response.status_code)
+#         print("Response:", response.text)
+#         response.raise_for_status()
 
-    print("[✅] .env.local updated.")
+#     token_data = response.json()
+#     access_token = token_data["access_token"]
+
+#     # If a new refresh token is returned, save it
+#     if "refresh_token" in token_data:
+#         update_refresh_token_env(token_data["refresh_token"])
+#         print("[✅] New refresh token saved to .env.local.")
+
+#     print("[✅] Got access token.")
+#     return access_token
+
+
+# def update_refresh_token_env(new_token, env_path=".env.local"):
+#     print("[💾] Updating .env.local with new refresh token...")
+#     lines = []
+#     updated = False
+
+#     # Read existing lines
+#     with open(env_path, "r") as f:
+#         for line in f:
+#             if line.startswith("RINGCENTRAL_REFRESH_TOKEN="):
+#                 lines.append(f"RINGCENTRAL_REFRESH_TOKEN={new_token}\n")
+#                 updated = True
+#             else:
+#                 lines.append(line)
+
+#     # If token wasn't found, append it
+#     if not updated:
+#         lines.append(f"RINGCENTRAL_REFRESH_TOKEN={new_token}\n")
+
+#     # Write back the updated content
+#     with open(env_path, "w") as f:
+#         f.writelines(lines)
+
+#     print("[✅] .env.local updated.")
 
 
 
