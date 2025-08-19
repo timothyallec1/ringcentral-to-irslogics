@@ -10,4 +10,7 @@
 /irs_matched_calls_cache
 /irs_unmatched_calls_cache
 /ring_central_call_logs_cache
+
+.env
+.env.local
 local.settings.json
