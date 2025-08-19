@@ -1,5 +1,10 @@
 import azure.functions as func
 from automate_ringcentral_to_irslogics import automate_ringcentral_to_irslogics
+import sys
+import io
+
+# Ensure stdout uses UTF-8 encoding
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
 app = func.FunctionApp()
 
