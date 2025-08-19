@@ -1,6 +1,5 @@
 requests
+azure-functions
 python-dotenv
 pytz==2025.2
 pydub==0.25.1
-fastapi==0.115.0
-uvicorn[standard]==0.30.6
