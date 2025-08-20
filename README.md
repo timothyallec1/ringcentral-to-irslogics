@@ -1,5 +1,31 @@
 # ringcentral-to-irslogics
 
+
+
+to deploy:
+$env:Path += ";C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin"
+az login --use-device-code  
+
+func azure functionapp publish ringcentral-irs-logics-automated --python
+
+to test manual automation endpoint
+
+Invoke-RestMethod -Method Post -Uri "https://ringcentral-irs-logics-automated.azurewebsites.net/api/run-automation?code=RdOh-Ie9vg9Q5qmosJaAk3jANkf_bkJLp7AUQmnWsN4aAzFuLsMLjA=="
+
+
+log stated:
+Your WeeklyAutomation function will now run automatically at:
+
+Aug 25, 2025 – 02:00 UTC
+
+Sep 1, 2025 – 02:00 UTC
+
+Sep 8, 2025 – 02:00 UTC
+
+Sep 15, 2025 – 02:00 UTC
+
+Sep 22, 2025 – 02:00 UTC
+
 📞🔗 IRS Logics + RingCentral Automation Workflow
 This automation system integrates RingCentral call logs with IRS Logics case records. It processes call recordings, matches them to IRS cases via phone numbers, and uploads valid recordings to the IRS Logics system.
 

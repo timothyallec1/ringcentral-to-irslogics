@@ -18,7 +18,7 @@ def fetch_and_cache_case_ids() -> str:
         load_dotenv(".env.local")
     API_KEY = os.getenv("IRSLOGICS_API_KEY")
     STATUS_FILE = "irs_logics_status_id.json"
-    OUTPUT_DIR = "irs_logics_case_ids_cache"
+    OUTPUT_DIR = "/tmp/irs_logics_case_ids_cache"
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     OUTPUT_FILE = os.path.join(OUTPUT_DIR, f"all_case_ids_{timestamp}.json")
 

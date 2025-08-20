@@ -212,11 +212,14 @@ def download_recording(recording_uri, access_token, filename):
     response = requests.get(recording_uri, headers=headers)
     response.raise_for_status()
 
+    # Ensure /tmp directory exists
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+
     with open(filename, "wb") as f:
         f.write(response.content)
     print("[✅] Download complete.")
 
-def save_calls_to_json(calls, output_dir="ring_central_call_logs_cache"):
+def save_calls_to_json(calls, output_dir="/tmp/ring_central_call_logs_cache"):
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
 
@@ -290,7 +293,7 @@ def fetch_and_cache_ringcentral_calls():
     save_calls_to_json(calls)
 
     # Confirm file written
-    output_dir = "ring_central_call_logs_cache"
+    output_dir = "/tmp/ring_central_call_logs_cache"
     if not os.path.exists(output_dir):
         raise FileNotFoundError("❌ Output folder not found.")
 
@@ -308,7 +311,6 @@ def main():
     calls = fetch_call_logs(access_token)
     save_calls_to_json(calls)
 
-
     if not calls:
         print("❌ No calls with recordings found.")
         return
@@ -324,10 +326,10 @@ def main():
             # Sanitize phone number for filename (remove special chars)
             safe_number = formatted_number.replace("(", "").replace(")", "").replace("-", "")
 
-            filename = f"recording_call_{i+1}_{safe_number}.mp3"
+            # ✅ Save MP3 to /tmp instead of function root
+            filename = os.path.join("/tmp", f"recording_call_{i+1}_{safe_number}.mp3")
             download_recording(recording_uri, access_token, filename)
             break
-
 
     else:
         print("❌ Found calls, but no recordings were downloadable.")

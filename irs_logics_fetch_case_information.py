@@ -24,7 +24,7 @@ from time import sleep
 
 
 # API_KEY = os.getenv("IRSLOGICS_API_KEY")
-# CASE_CACHE_ID_PATH = get_latest_json_file("irs_logics_case_ids_cache")
+# CASE_CACHE_ID_PATH = get_latest_json_file("/tmp/irs_logics_case_ids_cache")
 # GET_CASE_URL = "https://choice.irslogics.com/publicapi/2020-02-22/cases/caseinfo"
 
 # force refresh flag set it to true if you want case info to be fetched again for all cases
@@ -33,9 +33,9 @@ def fetch_and_cache_irs_logics_cases(force_refresh: bool = False):
     if os.path.exists(".env.local"):
         load_dotenv(".env.local")
     API_KEY = os.getenv("IRSLOGICS_API_KEY")
-    CASE_CACHE_ID_PATH = get_latest_json_file("irs_logics_case_ids_cache")
+    CASE_CACHE_ID_PATH = get_latest_json_file("/tmp/irs_logics_case_ids_cache")
     GET_CASE_URL = "https://choice.irslogics.com/publicapi/2020-02-22/cases/caseinfo"
-    OUTPUT_DIR = "irs_logics_case_info_cache"
+    OUTPUT_DIR = "/tmp/irs_logics_case_info_cache"
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     output_path = os.path.join(OUTPUT_DIR, f"all_cases_with_numbers_{timestamp}.json")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
