@@ -3,14 +3,19 @@
 
 
 to deploy:
-$env:Path += ";C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin"
 az login --use-device-code  
 
 func azure functionapp publish ringcentral-irs-logics-automated --python
 
-to test manual automation endpoint
+to test manual automation endpoint deployed version
 
 Invoke-RestMethod -Method Post -Uri "https://ringcentral-irs-logics-automated.azurewebsites.net/api/run-automation?code=RdOh-Ie9vg9Q5qmosJaAk3jANkf_bkJLp7AUQmnWsN4aAzFuLsMLjA=="
+
+to test locally:
+
+func start
+
+curl http://localhost:7071/api/run-automation
 
 
 log stated:

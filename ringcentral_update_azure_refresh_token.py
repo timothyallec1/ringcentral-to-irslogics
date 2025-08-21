@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------
-# Script: ring_central_update_refresh_token.py
+# Script: ringcentral_update_refresh_token.py
 # Description:
 #   Utility functions to persist and retrieve the RingCentral
 #   refresh token in /home/refresh_token.txt (Azure persistent storage).

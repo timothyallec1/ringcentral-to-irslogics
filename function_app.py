@@ -20,14 +20,33 @@ def weekly_timer(mytimer: func.TimerRequest) -> None:
         print(f"❌ Automation failed: {e}")
 
 
-# ✅ HTTP trigger (manual run)
+# ✅ HTTP trigger (manual run, background execution with refresh token logs)
 @app.function_name(name="ManualAutomation")
 @app.route(route="run-automation", methods=["GET", "POST"])
 def manual_trigger(req: func.HttpRequest) -> func.HttpResponse:
-    print("▶️ Manual HTTP trigger fired — running automation...")
-    try:
-        automate_ringcentral_to_irslogics()
-        return func.HttpResponse("✅ Automation triggered successfully!", status_code=200)
-    except Exception as e:
-        print(f"❌ Automation failed: {e}")
-        return func.HttpResponse(f"❌ Automation failed: {e}", status_code=500)
+    print("▶️ Manual HTTP trigger fired — starting automation in background...")
+
+    def run_job():
+        try:
+            automate_ringcentral_to_irslogics()
+            print("✅ Automation completed via Manual HTTP Trigger (background).")
+        except Exception as e:
+            # 👇 Print out the refresh token currently in the file
+            try:
+                with open("/home/refresh_token.txt", "r") as f:
+                    token = f.read().strip()
+                    print(f"🔑 Refresh token (first/last 6): {token[:6]}...{token[-6:]}")
+            except FileNotFoundError:
+                print("⚠️ /home/refresh_token.txt not found")
+            except Exception as ex:
+                print(f"⚠️ Could not read refresh token: {ex}")
+
+            print(f"❌ Automation failed in background: {e}")
+
+    # Run automation in a background thread to avoid HTTP timeout
+    import threading
+    threading.Thread(target=run_job, daemon=True).start()
+
+    # Immediately return so Azure doesn’t kill the request
+    return func.HttpResponse("✅ Automation started (running in background)...", status_code=200)
+
