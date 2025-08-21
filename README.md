@@ -9,7 +9,8 @@ func azure functionapp publish ringcentral-irs-logics-automated --python
 
 to test manual automation endpoint deployed version
 
-Invoke-RestMethod -Method Post -Uri "https://ringcentral-irs-logics-automated.azurewebsites.net/api/run-automation?code=RdOh-Ie9vg9Q5qmosJaAk3jANkf_bkJLp7AUQmnWsN4aAzFuLsMLjA=="
+Invoke-WebRequest -Uri "https://flex-ring-central-irs-logics-automated-gwb5acekapfabphw.westus3-01.azurewebsites.net/api/run-automation?code=dlXZCdcZ3vr2CERIR8r9DClfcR7kuYNulBEB5FGr-8DrAzFuJ6mfDQ==" -Method GET
+
 
 to test locally:
 

@@ -22,6 +22,28 @@ from datetime import datetime
 from utilities import get_latest_json_file
 from time import sleep
 
+MAX_RETRIES = 3
+RETRY_DELAY = 2  # seconds
+
+def fetch_case_with_retries(GET_CASE_URL, API_KEY, case_id):
+    """Fetch a single IRS Logics case with retry support."""
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            response = requests.get(GET_CASE_URL, params={
+                "apikey": API_KEY,
+                "CaseID": case_id
+            }, timeout=15)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            if attempt < MAX_RETRIES:
+                print(f"⚠️ Attempt {attempt} failed for CaseID {case_id}: {e} — retrying in {RETRY_DELAY}s...")
+                sleep(RETRY_DELAY)
+            else:
+                print(f"❌ CaseID {case_id} failed after {MAX_RETRIES} retries: {e}")
+                return None
+
+
 
 # API_KEY = os.getenv("IRSLOGICS_API_KEY")
 # CASE_CACHE_ID_PATH = get_latest_json_file("/tmp/irs_logics_case_ids_cache")
@@ -73,31 +95,25 @@ def fetch_and_cache_irs_logics_cases(force_refresh: bool = False):
                 continue
 
             print(f"📁 Fetching Case #{i+1} — CaseID: {case_id}")
-            try:
-                response = requests.get(GET_CASE_URL, params={
-                    "apikey": API_KEY,
-                    "CaseID": case_id
-                })
-                response.raise_for_status()
-                data = response.json()
+            data = fetch_case_with_retries(GET_CASE_URL, API_KEY, case_id)
+            if not data:
+                continue  # skip this case if retries exhausted
 
-                if data.get("status") != "success":
-                    print(f"❌ Failed to retrieve case: {data.get('message')}")
-                    continue
+            if data.get("status") != "success":
+                print(f"❌ Failed to retrieve case {case_id}: {data.get('message')}")
+                continue
 
-                case = data["data"]
-                result = {
-                    "CaseID": case.get("CaseID"),
-                    "Name": f"{case.get('FirstName', '')} {case.get('LastName', '')}".strip(),
-                    "CellPhone": case.get("CellPhone"),
-                    "HomePhone": case.get("HomePhone"),
-                    "WorkPhone": case.get("WorkPhone")
-                }
-                results.append(result)
-                fetched += 1
+            case = data["data"]
+            result = {
+                "CaseID": case.get("CaseID"),
+                "Name": f"{case.get('FirstName', '')} {case.get('LastName', '')}".strip(),
+                "CellPhone": case.get("CellPhone"),
+                "HomePhone": case.get("HomePhone"),
+                "WorkPhone": case.get("WorkPhone")
+            }
+            results.append(result)
+            fetched += 1
 
-            except Exception as e:
-                print(f"❌ Error fetching CaseID {case_id}: {e}")
 
             sleep(0.3)
 
