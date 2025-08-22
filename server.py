@@ -39,24 +39,24 @@ def manual_trigger(background_tasks: BackgroundTasks):
 
 
 # Invoke-WebRequest -Uri "https://automated-ringcentral-irslogics-fra6hxard8aadwd9.canadacentral-01.azurewebsites.net/upload-call-recordings" -Method GET
-
-# ✅ New endpoint: Upload Call Recordings only
 @app.get("/upload-call-recordings")
 def upload_call_recordings(background_tasks: BackgroundTasks):
     logger.info("▶️ Upload Call Recordings endpoint triggered...")
+
     latest_calls = get_latest_json_file("ring_central_call_logs_cache")
     latest_cases = get_latest_json_file("irs_logics_case_info_cache")
-    match_calls_to_cases(latest_calls, latest_cases)
+    merged_file, _ = match_calls_to_cases(latest_calls, latest_cases)  # ✅ capture
 
     def run_upload():
         try:
-            upload_call_recordings_to_irslogics()
+            upload_call_recordings_to_irslogics(merged_file)  # ✅ pass directly
             logger.info("✅ Call recordings upload completed.")
         except Exception as e:
             logger.exception(f"❌ Upload failed in background: {e}")
 
     background_tasks.add_task(run_upload)
     return {"status": "✅ Upload Call Recordings started (running in background)..."}
+
 
 # (Optional) Timer-like endpoint (since App Service doesn’t have CRON triggers by default)
 @app.get("/weekly-automation")
