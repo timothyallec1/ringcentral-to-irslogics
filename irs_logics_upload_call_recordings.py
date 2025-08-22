@@ -37,6 +37,9 @@ from ringcentral_update_azure_refresh_token import load_refresh_token, save_refr
 
 from pydub.utils import which
 from pydub import AudioSegment
+import logging
+logger = logging.getLogger(__name__)
+
 
 ffmpeg_dir = os.path.join(os.getcwd(), "tools", "ffmpeg")
 
@@ -49,6 +52,19 @@ for binary in ["ffmpeg", "ffprobe"]:
 # Force pydub to use our bundled ffmpeg/ffprobe instead of relying on PATH
 AudioSegment.converter = os.path.join(ffmpeg_dir, "ffmpeg")
 AudioSegment.ffprobe = os.path.join(ffmpeg_dir, "ffprobe")
+
+# ✅ Azure Log Stream debug output
+logger.info(f"[🔍] ffmpeg path: {AudioSegment.converter}")
+logger.info(f"[🔍] ffprobe path: {AudioSegment.ffprobe}")
+logger.info(f"[🔍] ffmpeg exists? {os.path.exists(AudioSegment.converter)}")
+logger.info(f"[🔍] ffprobe exists? {os.path.exists(AudioSegment.ffprobe)}")
+
+# Check execute bits
+for binary in ["ffmpeg", "ffprobe"]:
+    path = os.path.join(ffmpeg_dir, binary)
+    if os.path.exists(path):
+        mode = oct(os.stat(path).st_mode)[-3:]
+        logger.info(f"[chmod] {binary} permissions = {mode}")
 
 
 
