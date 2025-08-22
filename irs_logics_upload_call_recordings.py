@@ -89,7 +89,7 @@ BASE_URL = os.getenv("RINGCENTRAL_BASE_URL", "https://platform.ringcentral.com")
 TOKEN_URL = f"{BASE_URL}/restapi/oauth/token"
 
 # Input file directory
-TEMP_DIR = "/tmp/temp_recordings"
+TEMP_DIR = "temp_recordings"
 os.makedirs(TEMP_DIR, exist_ok=True)
 
 # File size thresholds
@@ -326,7 +326,7 @@ def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
     success_count = 0
 
     # Load previously uploaded call_ids from latest merged_calls_with_case_id
-    previous_log = get_latest_json_file("/tmp/irs_matched_calls_cache")
+    previous_log = get_latest_json_file("irs_matched_calls_cache")
     with open(previous_log, "r") as f:
         previously_uploaded = {entry["call_id"] for entry in json.load(f)}
 

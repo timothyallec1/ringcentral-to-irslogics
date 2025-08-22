@@ -32,8 +32,8 @@ from utilities import get_latest_json_file
 
 def match_calls_to_cases(calls_file: str, cases_file: str) -> tuple[str, str]:
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    output_file = f"/tmp/irs_matched_calls_cache/merged_calls_with_case_id_{timestamp}.json"
-    unmatched_file = f"/tmp/irs_unmatched_calls_cache/unmatched_calls_{timestamp}.json"
+    output_file = f"irs_matched_calls_cache/merged_calls_with_case_id_{timestamp}.json"
+    unmatched_file = f"irs_unmatched_calls_cache/unmatched_calls_{timestamp}.json"
 
 
     # Load call logs
@@ -83,8 +83,8 @@ def match_calls_to_cases(calls_file: str, cases_file: str) -> tuple[str, str]:
 
 # Optional standalone usage
 if __name__ == "__main__":
-    latest_calls = get_latest_json_file("/tmp/ring_central_call_logs_cache")
-    latest_cases = get_latest_json_file("/tmp/irs_logics_case_info_cache")
+    latest_calls = get_latest_json_file("ring_central_call_logs_cache")
+    latest_cases = get_latest_json_file("irs_logics_case_info_cache")
     
     match_calls_to_cases(latest_calls, latest_cases)
 

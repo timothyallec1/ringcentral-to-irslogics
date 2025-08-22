@@ -223,7 +223,7 @@ def download_recording(recording_uri, access_token, filename):
         f.write(response.content)
     print("[✅] Download complete.")
 
-def save_calls_to_json(calls, output_dir="/tmp/ring_central_call_logs_cache"):
+def save_calls_to_json(calls, output_dir="ring_central_call_logs_cache"):
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
 
@@ -297,7 +297,7 @@ def fetch_and_cache_ringcentral_calls():
     save_calls_to_json(calls)
 
     # Confirm file written
-    output_dir = "/tmp/ring_central_call_logs_cache"
+    output_dir = "ring_central_call_logs_cache"
     if not os.path.exists(output_dir):
         raise FileNotFoundError("❌ Output folder not found.")
 
