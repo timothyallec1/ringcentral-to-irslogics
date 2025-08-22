@@ -37,9 +37,6 @@ from ringcentral_update_azure_refresh_token import load_refresh_token, save_refr
 
 from pydub.utils import which
 from pydub import AudioSegment
-import logging
-logger = logging.getLogger(__name__)
-
 
 ffmpeg_dir = os.path.join(os.getcwd(), "tools", "ffmpeg")
 
@@ -52,19 +49,6 @@ for binary in ["ffmpeg", "ffprobe"]:
 # Force pydub to use our bundled ffmpeg/ffprobe instead of relying on PATH
 AudioSegment.converter = os.path.join(ffmpeg_dir, "ffmpeg")
 AudioSegment.ffprobe = os.path.join(ffmpeg_dir, "ffprobe")
-
-# ✅ Azure Log Stream debug output
-logger.info(f"[🔍] ffmpeg path: {AudioSegment.converter}")
-logger.info(f"[🔍] ffprobe path: {AudioSegment.ffprobe}")
-logger.info(f"[🔍] ffmpeg exists? {os.path.exists(AudioSegment.converter)}")
-logger.info(f"[🔍] ffprobe exists? {os.path.exists(AudioSegment.ffprobe)}")
-
-# Check execute bits
-for binary in ["ffmpeg", "ffprobe"]:
-    path = os.path.join(ffmpeg_dir, binary)
-    if os.path.exists(path):
-        mode = oct(os.stat(path).st_mode)[-3:]
-        logger.info(f"[chmod] {binary} permissions = {mode}")
 
 
 
@@ -261,11 +245,6 @@ def download_recording(recording_uri, access_token, filename):
 
 
 def upload_to_irslogics(case_id, file_path):
-    # ✅ Debug prints to confirm ffmpeg paths at runtime
-    print(f"[🔍] ffmpeg path: {AudioSegment.converter}")
-    print(f"[🔍] ffprobe path: {AudioSegment.ffprobe}")
-    print(f"[🔍] ffmpeg exists? {os.path.exists(AudioSegment.converter)}")
-    print(f"[🔍] ffprobe exists? {os.path.exists(AudioSegment.ffprobe)}")
     print(f"[⬆️] Uploading {file_path} to IRS Logics for CaseID {case_id}...")
 
     try:
@@ -295,11 +274,6 @@ def upload_to_irslogics(case_id, file_path):
         return False
 
 def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
-    # ✅ Debug prints to confirm ffmpeg paths at runtime
-    print(f"[🔍] ffmpeg path: {AudioSegment.converter}")
-    print(f"[🔍] ffprobe path: {AudioSegment.ffprobe}")
-    print(f"[🔍] ffmpeg exists? {os.path.exists(AudioSegment.converter)}")
-    print(f"[🔍] ffprobe exists? {os.path.exists(AudioSegment.ffprobe)}")
     if not merged_calls_file_path:
         merged_calls_file_path = get_latest_json_file("irs_matched_calls_cache")
     print(f"[📁] Using merged calls file: {merged_calls_file_path}")
