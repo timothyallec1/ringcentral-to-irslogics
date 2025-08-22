@@ -1,6 +1,5 @@
 fastapi
 uvicorn
-gunicorn
 requests
 azure-functions
 python-dotenv
