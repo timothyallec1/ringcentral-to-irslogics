@@ -35,6 +35,8 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta
 import json
 from ringcentral_update_azure_refresh_token import load_refresh_token, save_refresh_token
+from storage_utils import save_json
+
 
 
 
@@ -223,18 +225,47 @@ def download_recording(recording_uri, access_token, filename):
         f.write(response.content)
     print("[✅] Download complete.")
 
-def save_calls_to_json(calls, output_dir="ring_central_call_logs_cache"):
-    # Ensure output directory exists
-    os.makedirs(output_dir, exist_ok=True)
+# def save_calls_to_json(calls, output_dir="ring_central_call_logs_cache"):
+#     # Ensure output directory exists
+#     os.makedirs(output_dir, exist_ok=True)
 
+#     # Create timestamped filename
+#     timestamp = datetime.now().strftime("%Y-%m-%d_%H%M")
+#     filename = f"calls_{timestamp}.json"
+#     filepath = os.path.join(output_dir, filename)
+
+
+#     structured_calls = []
+
+#     for call in calls:
+#         if "recording" in call:
+#             direction = call.get("direction")
+#             client = call.get("from", {}).get("phoneNumber") if direction == "Inbound" else call.get("to", {}).get("phoneNumber")
+#             sale = call.get("to", {}).get("phoneNumber") if direction == "Inbound" else call.get("from", {}).get("phoneNumber")
+#             formatted_sale = format_phone_number(sale)
+
+#             if formatted_sale in SALE_NUMBERS:
+#                 structured_calls.append({
+#                     "call_id": call.get("id"),
+#                     "client_number": format_phone_number(client),
+#                     "sale_number": formatted_sale,
+#                     "direction": direction,
+#                     "startTime": call.get("startTime"),
+#                     "recording_uri": call["recording"]["contentUri"]
+#                 })
+
+
+#     with open(filepath, "w") as f:
+#         json.dump(structured_calls, f, indent=2)
+
+#     print(f"[💾] Saved {len(structured_calls)} calls with recordings to {filepath}")
+
+def save_calls_to_json(calls, output_dir="ring_central_call_logs_cache"):
     # Create timestamped filename
     timestamp = datetime.now().strftime("%Y-%m-%d_%H%M")
     filename = f"calls_{timestamp}.json"
-    filepath = os.path.join(output_dir, filename)
-
 
     structured_calls = []
-
     for call in calls:
         if "recording" in call:
             direction = call.get("direction")
@@ -252,11 +283,8 @@ def save_calls_to_json(calls, output_dir="ring_central_call_logs_cache"):
                     "recording_uri": call["recording"]["contentUri"]
                 })
 
-
-    with open(filepath, "w") as f:
-        json.dump(structured_calls, f, indent=2)
-
-    print(f"[💾] Saved {len(structured_calls)} calls with recordings to {filepath}")
+    # ✅ Switch logic: save locally if .env.local exists, else to blob
+    return save_json(structured_calls, output_dir, filename, "fetchedcallsringcentral")
 
 def fetch_and_cache_ringcentral_calls():
     """
@@ -305,9 +333,14 @@ def fetch_and_cache_ringcentral_calls():
     if not all_files:
         raise FileNotFoundError("❌ No JSON files found in output folder.")
 
-    latest_file = max(all_files, key=os.path.getctime)
+    # latest_file = max(all_files, key=os.path.getctime)
+    # print(f"💾 Latest saved call log: {latest_file}")
+    # return latest_file
+    # Save calls (local or blob depending on environment)
+    latest_file = save_calls_to_json(calls)
     print(f"💾 Latest saved call log: {latest_file}")
     return latest_file
+
 
 
 def main():
