@@ -2,6 +2,7 @@ from fastapi import FastAPI, BackgroundTasks
 import logging
 import sys
 from automate_ringcentral_to_irslogics import automate_ringcentral_to_irslogics
+from irs_logics_upload_call_recordings import upload_call_recordings_to_irslogics  # ✅ new import
 
 # ✅ Configure logging so logs go to stdout (captured by Azure Log Stream)
 logging.basicConfig(
@@ -31,10 +32,23 @@ def manual_trigger(background_tasks: BackgroundTasks):
         except Exception as e:
             logger.exception(f"❌ Automation failed in background: {e}")
 
-    # Run automation as a background task (FastAPI handles thread mgmt)
     background_tasks.add_task(run_job)
-
     return {"status": "✅ Automation started (running in background)..."}
+
+# ✅ New endpoint: Upload Call Recordings only
+@app.get("/upload-call-recordings")
+def upload_call_recordings(background_tasks: BackgroundTasks):
+    logger.info("▶️ Upload Call Recordings endpoint triggered...")
+
+    def run_upload():
+        try:
+            upload_call_recordings_to_irslogics()
+            logger.info("✅ Call recordings upload completed.")
+        except Exception as e:
+            logger.exception(f"❌ Upload failed in background: {e}")
+
+    background_tasks.add_task(run_upload)
+    return {"status": "✅ Upload Call Recordings started (running in background)..."}
 
 # (Optional) Timer-like endpoint (since App Service doesn’t have CRON triggers by default)
 @app.get("/weekly-automation")

@@ -23,6 +23,7 @@
 
 import os
 import json
+import stat
 import requests
 from dotenv import load_dotenv
 from datetime import datetime
@@ -34,6 +35,20 @@ import math
 from utilities import get_latest_json_file
 from ringcentral_update_azure_refresh_token import load_refresh_token, save_refresh_token
 
+from pydub.utils import which
+from pydub import AudioSegment
+
+ffmpeg_dir = os.path.join(os.getcwd(), "tools", "ffmpeg")
+
+# Ensure executables have +x permission (Linux/Azure only)
+for binary in ["ffmpeg", "ffprobe"]:
+    path = os.path.join(ffmpeg_dir, binary)
+    if os.path.exists(path):
+        os.chmod(path, os.stat(path).st_mode | stat.S_IEXEC)
+
+# Force pydub to use our bundled ffmpeg/ffprobe instead of relying on PATH
+AudioSegment.converter = os.path.join(ffmpeg_dir, "ffmpeg")
+AudioSegment.ffprobe = os.path.join(ffmpeg_dir, "ffprobe")
 
 
 
