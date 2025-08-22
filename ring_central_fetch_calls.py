@@ -40,17 +40,21 @@ from ringcentral_update_azure_refresh_token import load_refresh_token, save_refr
 
 # Load secrets
 # Load from .env.local if present (for local dev), otherwise Azure will use Function App settings
+# ✅ Load secrets logic (local vs Azure)
 if os.path.exists(".env.local"):
+    print("[🔑] Loaded secrets from .env.local (local mode)")
     load_dotenv(".env.local")
+else:
+    print("[☁️] Using Azure App Service environment variables")
 
 # Env variables
 CLIENT_ID = os.getenv("RINGCENTRAL_CLIENT_ID")
 CLIENT_SECRET = os.getenv("RINGCENTRAL_CLIENT_SECRET")
-# REFRESH_TOKEN = os.getenv("RINGCENTRAL_REFRESH_TOKEN")
 BASE_URL = os.getenv("RINGCENTRAL_BASE_URL", "https://platform.ringcentral.com")
 
 TOKEN_URL = f"{BASE_URL}/restapi/oauth/token"
 CALL_LOG_URL = f"{BASE_URL}/restapi/v1.0/account/~/call-log"
+
 
 SALE_NUMBERS = {
     "(213)900-4505",  # Aden Bustillos

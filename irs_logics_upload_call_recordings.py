@@ -4,22 +4,14 @@
 # Description:
 #   Automates the process of uploading RingCentral call recordings 
 #   to the IRS Logics platform by matching calls with CaseIDs.
-# 
+#
 #   Features:
-#   - Downloads call recordings from RingCentral using a refresh token stores them in a temp directory
+#   - Downloads call recordings from RingCentral using a refresh token
 #   - Splits recordings larger than 5.99 MB into smaller MP3 parts
-#   - Uploads each recording or split part to IRS Logics using the
-#     public document API and a valid CaseID
+#   - Uploads each recording or split part to IRS Logics
 #   - Automatically updates the refresh token if a new one is received
 #   - Supports retrying failed uploads with recursive splitting
-# 
-#   Input:
-#     - Merged call logs with `CaseID` in: ring_central_call_logs_cache/merged_calls_with_case_id_<timestamp>.json
-#   Output:
-#     - Upload status logs and optionally deleted temp MP3 files in ./temp_recordings
-#
 # ---------------------------------------------------------------
-
 
 import os
 import json
@@ -30,57 +22,85 @@ from datetime import datetime
 import time
 from urllib.parse import urlencode
 import pytz
-from pydub import AudioSegment
 import math
+import platform
+from pydub import AudioSegment
+from pydub import utils
 from utilities import get_latest_json_file
 from ringcentral_update_azure_refresh_token import load_refresh_token, save_refresh_token
 
-from pydub.utils import which
-from pydub import AudioSegment
-
+# ✅ Handle ffmpeg paths for both Windows (local) and Azure/Linux
+# ✅ Handle ffmpeg paths for both Windows (local) and Azure/Linux
 ffmpeg_dir = os.path.join(os.getcwd(), "tools", "ffmpeg")
+is_windows = platform.system().lower().startswith("win")
 
-# Ensure executables have +x permission (Linux/Azure only)
-for binary in ["ffmpeg", "ffprobe"]:
-    path = os.path.join(ffmpeg_dir, binary)
-    if os.path.exists(path):
-        os.chmod(path, os.stat(path).st_mode | stat.S_IEXEC)
+if is_windows:
+    ffmpeg_path = os.path.join(ffmpeg_dir, "ffmpeg.exe")
+    ffprobe_path = os.path.join(ffmpeg_dir, "ffprobe.exe")
 
-# Force pydub to use our bundled ffmpeg/ffprobe instead of relying on PATH
-AudioSegment.converter = os.path.join(ffmpeg_dir, "ffmpeg")
-AudioSegment.ffprobe = os.path.join(ffmpeg_dir, "ffprobe")
+    print(f"[DEBUG] PATH updated to include ffmpeg dir: {ffmpeg_dir}")
+    print(f"[DEBUG] ffmpeg exists? {os.path.exists(ffmpeg_path)}")
+    print(f"[DEBUG] ffprobe exists? {os.path.exists(ffprobe_path)}")
+
+else:
+    ffmpeg_path = os.path.join(ffmpeg_dir, "ffmpeg")
+    ffprobe_path = os.path.join(ffmpeg_dir, "ffprobe")
+    # Ensure executables are +x on Azure/Linux
+    for binary in [ffmpeg_path, ffprobe_path]:
+        if os.path.exists(binary):
+            os.chmod(binary, os.stat(binary).st_mode | stat.S_IEXEC)
+
+# Tell pydub to use the bundled ffmpeg/ffprobe
+AudioSegment.converter = ffmpeg_path
+AudioSegment.ffprobe = ffprobe_path
+utils.get_prober_name = lambda: ffprobe_path
+utils.get_encoder_name = lambda: ffmpeg_path
+
+print(f"[🎧] Using ffmpeg at {ffmpeg_path}")
+print(f"[🎧] Using ffprobe at {ffprobe_path}")
+print(f"[DEBUG] ffmpeg exists? {os.path.exists(ffmpeg_path)}")
+print(f"[DEBUG] ffprobe exists? {os.path.exists(ffprobe_path)}")
+
+from pydub import utils as pydub_utils
+
+orig_mediainfo_json = pydub_utils.mediainfo_json
+
+def debug_mediainfo_json(filepath, read_ahead_limit=0):
+    command = [AudioSegment.ffprobe, "-v", "quiet", "-print_format", "json", "-show_format", "-show_streams", filepath]
+    print(f"[DEBUG] mediainfo command: {command}")
+    return orig_mediainfo_json(filepath, read_ahead_limit=read_ahead_limit)
+
+pydub_utils.mediainfo_json = debug_mediainfo_json
 
 
-
-
-# Load environment variables
-# Load from .env.local if present (for local dev), otherwise Azure will use Function App settings
+# ✅ Load secrets logic (local vs Azure)
 if os.path.exists(".env.local"):
+    print("[🔑] Loaded secrets from .env.local (local mode)")
     load_dotenv(".env.local")
+else:
+    print("[☁️] Using Azure App Service environment variables")
 
-# IRS Logics
+# ✅ Common environment vars
 IRSLOGICS_API_KEY = os.getenv("IRSLOGICS_API_KEY")
 IRSLOGICS_UPLOAD_URL = "https://choice.irslogics.com/publicapi/documents/casedocument"
-
-# RingCentral
 CLIENT_ID = os.getenv("RINGCENTRAL_CLIENT_ID")
 CLIENT_SECRET = os.getenv("RINGCENTRAL_CLIENT_SECRET")
-# REFRESH_TOKEN = os.getenv("RINGCENTRAL_REFRESH_TOKEN")
 BASE_URL = os.getenv("RINGCENTRAL_BASE_URL", "https://platform.ringcentral.com")
 TOKEN_URL = f"{BASE_URL}/restapi/oauth/token"
 
-# Input file
-# MERGED_CALLS_FILE = get_latest_json_file("/tmp/irs_matched_calls_cache")
-# print(f"[📁] Loaded merged calls file: {MERGED_CALLS_FILE}")
+# Input file directory
 TEMP_DIR = "/tmp/temp_recordings"
 os.makedirs(TEMP_DIR, exist_ok=True)
 
-
+# File size thresholds
 MAX_MB = 5.99
 MAX_BYTES = MAX_MB * 1024 * 1024  # ~6,285,824 bytes
 
 
+
 def split_mp3_if_needed(filepath, force_split=False):
+
+
     try:
         file_size = os.path.getsize(filepath)
     except FileNotFoundError:
@@ -92,7 +112,19 @@ def split_mp3_if_needed(filepath, force_split=False):
 
     print(f"[⚠️] File exceeds {MAX_MB} MB or forced split. Splitting...")
 
-    audio = AudioSegment.from_mp3(filepath)
+    try:
+        print(f"\n[DEBUG] Preparing to split file: {filepath}")
+        print(f"[DEBUG] File exists? {os.path.exists(filepath)}")
+        if os.path.exists(filepath):
+            print(f"[DEBUG] File size: {os.path.getsize(filepath)} bytes")
+            
+        print(f"[DEBUG] ffmpeg_path: {AudioSegment.converter}")
+        print(f"[DEBUG] ffprobe_path: {AudioSegment.ffprobe}")
+        audio = AudioSegment.from_mp3(filepath)
+    except Exception as e:
+        print(f"[❌] Error during AudioSegment.from_mp3: {e}")
+        raise
+
     duration_ms = len(audio)
     num_parts = math.ceil(file_size / MAX_BYTES)
     chunk_length = duration_ms // num_parts
@@ -110,11 +142,12 @@ def split_mp3_if_needed(filepath, force_split=False):
         new_files.append(new_filename)
         print(f"[🎧] Created: {new_filename}")
 
-    # Optionally delete original large file
     if os.path.exists(filepath):
         os.remove(filepath)
 
     return new_files
+
+
 
 
 def get_access_token_from_refresh_token():
