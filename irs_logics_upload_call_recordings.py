@@ -275,7 +275,7 @@ def upload_to_irslogics(case_id, file_path):
 
 def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
     if not merged_calls_file_path:
-        merged_calls_file_path = get_latest_json_file("/tmp/irs_matched_calls_cache")
+        merged_calls_file_path = get_latest_json_file("irs_matched_calls_cache")
     print(f"[📁] Using merged calls file: {merged_calls_file_path}")
     access_token = get_access_token_from_refresh_token()
 

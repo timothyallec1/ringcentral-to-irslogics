@@ -3,6 +3,8 @@ import logging
 import sys
 from automate_ringcentral_to_irslogics import automate_ringcentral_to_irslogics
 from irs_logics_upload_call_recordings import upload_call_recordings_to_irslogics  # ✅ new import
+from irs_logics_match_caseID_with_call_logs import match_calls_to_cases
+from utilities import get_latest_json_file
 
 # ✅ Configure logging so logs go to stdout (captured by Azure Log Stream)
 logging.basicConfig(
@@ -42,6 +44,9 @@ def manual_trigger(background_tasks: BackgroundTasks):
 @app.get("/upload-call-recordings")
 def upload_call_recordings(background_tasks: BackgroundTasks):
     logger.info("▶️ Upload Call Recordings endpoint triggered...")
+    latest_calls = get_latest_json_file("ring_central_call_logs_cache")
+    latest_cases = get_latest_json_file("irs_logics_case_info_cache")
+    match_calls_to_cases(latest_calls, latest_cases)
 
     def run_upload():
         try:
