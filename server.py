@@ -35,6 +35,9 @@ def manual_trigger(background_tasks: BackgroundTasks):
     background_tasks.add_task(run_job)
     return {"status": "✅ Automation started (running in background)..."}
 
+
+# Invoke-WebRequest -Uri "https://automated-ringcentral-irslogics-fra6hxard8aadwd9.canadacentral-01.azurewebsites.net/upload-call-recordings" -Method GET
+
 # ✅ New endpoint: Upload Call Recordings only
 @app.get("/upload-call-recordings")
 def upload_call_recordings(background_tasks: BackgroundTasks):
