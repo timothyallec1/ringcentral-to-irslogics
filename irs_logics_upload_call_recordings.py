@@ -261,6 +261,11 @@ def download_recording(recording_uri, access_token, filename):
 
 
 def upload_to_irslogics(case_id, file_path):
+    # ✅ Debug prints to confirm ffmpeg paths at runtime
+    print(f"[🔍] ffmpeg path: {AudioSegment.converter}")
+    print(f"[🔍] ffprobe path: {AudioSegment.ffprobe}")
+    print(f"[🔍] ffmpeg exists? {os.path.exists(AudioSegment.converter)}")
+    print(f"[🔍] ffprobe exists? {os.path.exists(AudioSegment.ffprobe)}")
     print(f"[⬆️] Uploading {file_path} to IRS Logics for CaseID {case_id}...")
 
     try:
@@ -290,6 +295,11 @@ def upload_to_irslogics(case_id, file_path):
         return False
 
 def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
+    # ✅ Debug prints to confirm ffmpeg paths at runtime
+    print(f"[🔍] ffmpeg path: {AudioSegment.converter}")
+    print(f"[🔍] ffprobe path: {AudioSegment.ffprobe}")
+    print(f"[🔍] ffmpeg exists? {os.path.exists(AudioSegment.converter)}")
+    print(f"[🔍] ffprobe exists? {os.path.exists(AudioSegment.ffprobe)}")
     if not merged_calls_file_path:
         merged_calls_file_path = get_latest_json_file("irs_matched_calls_cache")
     print(f"[📁] Using merged calls file: {merged_calls_file_path}")
