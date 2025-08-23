@@ -4,12 +4,12 @@
 /__pycache__
 
 
-# /irs_logics_case_ids_cache
-# /irs_logics_case_info_cache
-# /irs_logics_case_logs_cache
-# /irs_matched_calls_cache
-# /irs_unmatched_calls_cache
-# /ring_central_call_logs_cache
+/irs_logics_case_ids_cache
+/irs_logics_case_info_cache
+/irs_logics_case_logs_cache
+/irs_matched_calls_cache
+/irs_unmatched_calls_cache
+/ring_central_call_logs_cache
 
 .env
 .env.local
