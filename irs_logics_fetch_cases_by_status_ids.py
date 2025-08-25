@@ -5,6 +5,17 @@ from time import sleep
 from dotenv import load_dotenv
 from datetime import datetime
 from utilities import get_latest_json_file
+import logging
+import sys
+
+# ✅ Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger(__name__)
+
 
 
 def fetch_and_cache_case_ids() -> str:
@@ -44,7 +55,7 @@ def fetch_and_cache_case_ids() -> str:
 
         # Skip if previously cached and assume unchanged
         prev_ids = previous_cache.get(status_id, [])
-        print(f"[🔍] Checking {status_name} (StatusID: {status_id})")
+        logger.info(f"[🔍] Checking {status_name} (StatusID: {status_id})")
 
         try:
             params = {
@@ -59,18 +70,18 @@ def fetch_and_cache_case_ids() -> str:
                 current_ids = data.get("data", [])
 
                 if set(current_ids) == set(prev_ids):
-                    print(f"[⏩] Skipped — no change from previous cache.")
+                    logger.info(f"[⏩] Skipped — no change from previous cache.")
                     case_cache[status_id] = prev_ids  # use previous
                     continue
 
-                print(f"[✅] Found {len(current_ids)} case IDs (updated).")
+                logger.info(f"[✅] Found {len(current_ids)} case IDs (updated).")
                 case_cache[status_id] = current_ids
             else:
-                print(f"[⚠️] Failed response: {data.get('message')}")
+                logger.info(f"[⚠️] Failed response: {data.get('message')}")
                 case_cache[status_id] = prev_ids  # fallback to previous
 
         except Exception as e:
-            print(f"[❌] Error fetching StatusID {status_id}: {e}")
+            logger.info(f"[❌] Error fetching StatusID {status_id}: {e}")
             case_cache[status_id] = prev_ids  # fallback to previous
 
         sleep(1)
@@ -78,7 +89,7 @@ def fetch_and_cache_case_ids() -> str:
     with open(OUTPUT_FILE, "w") as f:
         json.dump(case_cache, f, indent=2)
 
-    print(f"[💾] Case cache saved to: {OUTPUT_FILE}")
+    logger.info(f"[💾] Case cache saved to: {OUTPUT_FILE}")
     return OUTPUT_FILE
 
 

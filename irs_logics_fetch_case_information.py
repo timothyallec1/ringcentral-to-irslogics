@@ -21,6 +21,17 @@ from dotenv import load_dotenv
 from datetime import datetime
 from utilities import get_latest_json_file
 from time import sleep
+import logging
+import sys
+
+# ✅ Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger(__name__)
+
 
 MAX_RETRIES = 3
 RETRY_DELAY = 2  # seconds
@@ -37,10 +48,10 @@ def fetch_case_with_retries(GET_CASE_URL, API_KEY, case_id):
             return response.json()
         except Exception as e:
             if attempt < MAX_RETRIES:
-                print(f"⚠️ Attempt {attempt} failed for CaseID {case_id}: {e} — retrying in {RETRY_DELAY}s...")
+                logger.info(f"⚠️ Attempt {attempt} failed for CaseID {case_id}: {e} — retrying in {RETRY_DELAY}s...")
                 sleep(RETRY_DELAY)
             else:
-                print(f"❌ CaseID {case_id} failed after {MAX_RETRIES} retries: {e}")
+                logger.info(f"❌ CaseID {case_id} failed after {MAX_RETRIES} retries: {e}")
                 return None
 
 
@@ -84,7 +95,7 @@ def fetch_and_cache_irs_logics_cases(force_refresh: bool = False):
     fetched = 0
 
     for status_id, case_ids in cache.items():
-        print(f"\n[🔁] StatusID: {status_id} — Total Cases: {len(case_ids)}")
+        logger.info(f"\n[🔁] StatusID: {status_id} — Total Cases: {len(case_ids)}")
 
         for i, case_id in enumerate(case_ids):
             str_case_id = str(case_id)
@@ -94,13 +105,13 @@ def fetch_and_cache_irs_logics_cases(force_refresh: bool = False):
                 skipped += 1
                 continue
 
-            print(f"📁 Fetching Case #{i+1} — CaseID: {case_id}")
+            logger.info(f"📁 Fetching Case #{i+1} — CaseID: {case_id}")
             data = fetch_case_with_retries(GET_CASE_URL, API_KEY, case_id)
             if not data:
                 continue  # skip this case if retries exhausted
 
             if data.get("status") != "success":
-                print(f"❌ Failed to retrieve case {case_id}: {data.get('message')}")
+                logger.info(f"❌ Failed to retrieve case {case_id}: {data.get('message')}")
                 continue
 
             case = data["data"]
@@ -120,8 +131,8 @@ def fetch_and_cache_irs_logics_cases(force_refresh: bool = False):
     with open(output_path, "w") as f:
         json.dump(results, f, indent=2)
 
-    print(f"\n✅ Saved {len(results)} case contact entries to {output_path}")
-    print(f"⏩ Skipped from cache: {skipped} | 🌐 Fetched from API: {fetched}")
+    logger.info(f"\n✅ Saved {len(results)} case contact entries to {output_path}")
+    logger.info(f"⏩ Skipped from cache: {skipped} | 🌐 Fetched from API: {fetched}")
     return output_path
 
 

@@ -29,6 +29,17 @@ import json
 import os
 from datetime import datetime
 from utilities import get_latest_json_file
+import logging
+import sys
+
+# ✅ Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger(__name__)
+
 
 def match_calls_to_cases(calls_file: str, cases_file: str) -> tuple[str, str]:
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -76,8 +87,8 @@ def match_calls_to_cases(calls_file: str, cases_file: str) -> tuple[str, str]:
     with open(unmatched_file, "w") as f:
         json.dump(unmatched_calls, f, indent=2)
 
-    print(f"[✅] Matched {len(matched_calls)} calls saved to {output_file}")
-    print(f"[⚠️] Unmatched {len(unmatched_calls)} calls saved to {unmatched_file}")
+    logger.info(f"[✅] Matched {len(matched_calls)} calls saved to {output_file}")
+    logger.info(f"[⚠️] Unmatched {len(unmatched_calls)} calls saved to {unmatched_file}")
 
     return output_file, unmatched_file
 
