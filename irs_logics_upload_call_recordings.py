@@ -28,17 +28,6 @@ from pydub import AudioSegment
 from pydub import utils
 from utilities import get_latest_json_file
 from ringcentral_update_azure_refresh_token import load_refresh_token, save_refresh_token
-import logging
-import sys
-
-# ✅ Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
-)
-logger = logging.getLogger(__name__)
-
 
 # ✅ Handle ffmpeg paths for both Windows (local) and Azure/Linux
 # ✅ Handle ffmpeg paths for both Windows (local) and Azure/Linux
@@ -49,9 +38,9 @@ if is_windows:
     ffmpeg_path = os.path.join(ffmpeg_dir, "ffmpeg.exe")
     ffprobe_path = os.path.join(ffmpeg_dir, "ffprobe.exe")
 
-    logger.info(f"[DEBUG] PATH updated to include ffmpeg dir: {ffmpeg_dir}")
-    logger.info(f"[DEBUG] ffmpeg exists? {os.path.exists(ffmpeg_path)}")
-    logger.info(f"[DEBUG] ffprobe exists? {os.path.exists(ffprobe_path)}")
+    print(f"[DEBUG] PATH updated to include ffmpeg dir: {ffmpeg_dir}")
+    print(f"[DEBUG] ffmpeg exists? {os.path.exists(ffmpeg_path)}")
+    print(f"[DEBUG] ffprobe exists? {os.path.exists(ffprobe_path)}")
 
 else:
     ffmpeg_path = os.path.join(ffmpeg_dir, "ffmpeg")
@@ -67,10 +56,10 @@ AudioSegment.ffprobe = ffprobe_path
 utils.get_prober_name = lambda: ffprobe_path
 utils.get_encoder_name = lambda: ffmpeg_path
 
-logger.info(f"[🎧] Using ffmpeg at {ffmpeg_path}")
-logger.info(f"[🎧] Using ffprobe at {ffprobe_path}")
-logger.info(f"[DEBUG] ffmpeg exists? {os.path.exists(ffmpeg_path)}")
-logger.info(f"[DEBUG] ffprobe exists? {os.path.exists(ffprobe_path)}")
+print(f"[🎧] Using ffmpeg at {ffmpeg_path}")
+print(f"[🎧] Using ffprobe at {ffprobe_path}")
+print(f"[DEBUG] ffmpeg exists? {os.path.exists(ffmpeg_path)}")
+print(f"[DEBUG] ffprobe exists? {os.path.exists(ffprobe_path)}")
 
 from pydub import utils as pydub_utils
 
@@ -78,7 +67,7 @@ orig_mediainfo_json = pydub_utils.mediainfo_json
 
 def debug_mediainfo_json(filepath, read_ahead_limit=0):
     command = [AudioSegment.ffprobe, "-v", "quiet", "-print_format", "json", "-show_format", "-show_streams", filepath]
-    logger.info(f"[DEBUG] mediainfo command: {command}")
+    print(f"[DEBUG] mediainfo command: {command}")
     return orig_mediainfo_json(filepath, read_ahead_limit=read_ahead_limit)
 
 pydub_utils.mediainfo_json = debug_mediainfo_json
@@ -86,10 +75,10 @@ pydub_utils.mediainfo_json = debug_mediainfo_json
 
 # ✅ Load secrets logic (local vs Azure)
 if os.path.exists(".env.local"):
-    logger.info("[🔑] Loaded secrets from .env.local (local mode)")
+    print("[🔑] Loaded secrets from .env.local (local mode)")
     load_dotenv(".env.local")
 else:
-    logger.info("[☁️] Using Azure App Service environment variables")
+    print("[☁️] Using Azure App Service environment variables")
 
 # ✅ Common environment vars
 IRSLOGICS_API_KEY = os.getenv("IRSLOGICS_API_KEY")
@@ -115,25 +104,25 @@ def split_mp3_if_needed(filepath, force_split=False):
     try:
         file_size = os.path.getsize(filepath)
     except FileNotFoundError:
-        logger.info(f"[❌] File not found for splitting: {filepath}")
+        print(f"[❌] File not found for splitting: {filepath}")
         return []
 
     if file_size <= MAX_BYTES and not force_split:
         return [filepath]  # No split needed unless forced
 
-    logger.info(f"[⚠️] File exceeds {MAX_MB} MB or forced split. Splitting...")
+    print(f"[⚠️] File exceeds {MAX_MB} MB or forced split. Splitting...")
 
     try:
-        logger.info(f"\n[DEBUG] Preparing to split file: {filepath}")
-        logger.info(f"[DEBUG] File exists? {os.path.exists(filepath)}")
+        print(f"\n[DEBUG] Preparing to split file: {filepath}")
+        print(f"[DEBUG] File exists? {os.path.exists(filepath)}")
         if os.path.exists(filepath):
-            logger.info(f"[DEBUG] File size: {os.path.getsize(filepath)} bytes")
+            print(f"[DEBUG] File size: {os.path.getsize(filepath)} bytes")
             
-        logger.info(f"[DEBUG] ffmpeg_path: {AudioSegment.converter}")
-        logger.info(f"[DEBUG] ffprobe_path: {AudioSegment.ffprobe}")
+        print(f"[DEBUG] ffmpeg_path: {AudioSegment.converter}")
+        print(f"[DEBUG] ffprobe_path: {AudioSegment.ffprobe}")
         audio = AudioSegment.from_mp3(filepath)
     except Exception as e:
-        logger.info(f"[❌] Error during AudioSegment.from_mp3: {e}")
+        print(f"[❌] Error during AudioSegment.from_mp3: {e}")
         raise
 
     duration_ms = len(audio)
@@ -151,7 +140,7 @@ def split_mp3_if_needed(filepath, force_split=False):
         new_filename = os.path.join(dir_name, f"{base_name}_part{i+1}.mp3")
         chunk.export(new_filename, format="mp3")
         new_files.append(new_filename)
-        logger.info(f"[🎧] Created: {new_filename}")
+        print(f"[🎧] Created: {new_filename}")
 
     if os.path.exists(filepath):
         os.remove(filepath)
@@ -162,7 +151,7 @@ def split_mp3_if_needed(filepath, force_split=False):
 
 
 def get_access_token_from_refresh_token():
-    logger.info("[🔄] Exchanging refresh token for access token...")
+    print("[🔄] Exchanging refresh token for access token...")
     refresh_token = load_refresh_token()  # ✅ read from /home/refresh_token.txt or fallback to env
 
     data = {
@@ -174,9 +163,9 @@ def get_access_token_from_refresh_token():
     response = requests.post(TOKEN_URL, data=data, auth=auth)
 
     if response.status_code != 200:
-        logger.info("❌ Error response from RingCentral:")
-        logger.info("Status Code:", response.status_code)
-        logger.info("Response:", response.text)
+        print("❌ Error response from RingCentral:")
+        print("Status Code:", response.status_code)
+        print("Response:", response.text)
         response.raise_for_status()
 
     token_data = response.json()
@@ -186,7 +175,7 @@ def get_access_token_from_refresh_token():
     if "refresh_token" in token_data:
         save_refresh_token(token_data["refresh_token"])  # ✅ write to /home/refresh_token.txt
 
-    logger.info("[✅] Got access token.")
+    print("[✅] Got access token.")
     return access_token
 
 
@@ -204,9 +193,9 @@ def get_access_token_from_refresh_token():
 #     base_url = os.getenv("RINGCENTRAL_BASE_URL", "https://platform.ringcentral.com")
 #     token_url = f"{base_url}/restapi/oauth/token"
 
-#     logger.info("[🔄] Exchanging refresh token for access token...")
-#     logger.info(f"[🔐] Using refresh token: {refresh_token[:6]}... (truncated)")
-#     logger.info(f"[🌐] Token URL: {token_url}")
+#     print("[🔄] Exchanging refresh token for access token...")
+#     print(f"[🔐] Using refresh token: {refresh_token[:6]}... (truncated)")
+#     print(f"[🌐] Token URL: {token_url}")
 
 #     data = {
 #         "grant_type": "refresh_token",
@@ -217,10 +206,10 @@ def get_access_token_from_refresh_token():
 #     response = requests.post(token_url, data=data, auth=auth)
 
 #     if response.status_code != 200:
-#         logger.info("❌ Error response from RingCentral:")
-#         logger.info("Status Code:", response.status_code)
-#         logger.info("Response:", response.text)
-#         logger.info(f"[DEBUG] client_id: {client_id[:6]}..., client_secret: {client_secret[:6]}...")
+#         print("❌ Error response from RingCentral:")
+#         print("Status Code:", response.status_code)
+#         print("Response:", response.text)
+#         print(f"[DEBUG] client_id: {client_id[:6]}..., client_secret: {client_secret[:6]}...")
 #         response.raise_for_status()
 
 #     token_data = response.json()
@@ -229,15 +218,15 @@ def get_access_token_from_refresh_token():
 #     # Update refresh token if returned
 #     if "refresh_token" in token_data:
 #         update_refresh_token_env(token_data["refresh_token"])
-#         logger.info("[✅] New refresh token saved to .env.local.")
+#         print("[✅] New refresh token saved to .env.local.")
 
-#     logger.info("[✅] Got access token.")
+#     print("[✅] Got access token.")
 #     return access_token
 
 
 
 # def update_refresh_token_env(new_token, env_path=".env.local"):
-#     logger.info("[💾] Updating .env.local with new refresh token...")
+#     print("[💾] Updating .env.local with new refresh token...")
 #     lines = []
 #     updated = False
 
@@ -258,7 +247,7 @@ def get_access_token_from_refresh_token():
 #     with open(env_path, "w") as f:
 #         f.writelines(lines)
 
-#     logger.info("[✅] .env.local updated.")
+#     print("[✅] .env.local updated.")
 
 
 def format_filename(start_time_str):
@@ -268,7 +257,7 @@ def format_filename(start_time_str):
         pacific_dt = utc_dt.astimezone(pytz.timezone("US/Pacific"))
         timestamp = pacific_dt.strftime("%Y-%m-%d %I-%M-%S %p PDT")
     except Exception as e:
-        logger.info(f"[⚠️] Error parsing startTime: {e}")
+        print(f"[⚠️] Error parsing startTime: {e}")
         timestamp = "unknown_time"
 
     return f"{TEMP_DIR}/call_{timestamp}.mp3"
@@ -281,15 +270,15 @@ def download_recording(recording_uri, access_token, filename):
             with open(filename, "wb") as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
-        logger.info(f"[⬇️] Downloaded to {filename}")
+        print(f"[⬇️] Downloaded to {filename}")
         return True
     except Exception as e:
-        logger.info(f"[❌] Failed to download recording: {e}")
+        print(f"[❌] Failed to download recording: {e}")
         return False
 
 
 def upload_to_irslogics(case_id, file_path):
-    logger.info(f"[⬆️] Uploading {file_path} to IRS Logics for CaseID {case_id}...")
+    print(f"[⬆️] Uploading {file_path} to IRS Logics for CaseID {case_id}...")
 
     try:
         # Required query parameters
@@ -309,18 +298,18 @@ def upload_to_irslogics(case_id, file_path):
             # Send the POST request
             response = requests.post(full_url, files=files)
 
-            logger.info(f"[📬] Status: {response.status_code}")
-            logger.info(f"[📩] Response: {response.text}")
+            print(f"[📬] Status: {response.status_code}")
+            print(f"[📩] Response: {response.text}")
             return response.status_code == 200 and "success" in response.text.lower()
 
     except Exception as e:
-        logger.info(f"[❌] Upload error: {e}")
+        print(f"[❌] Upload error: {e}")
         return False
 
 def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
     if not merged_calls_file_path:
         merged_calls_file_path = get_latest_json_file("irs_matched_calls_cache")
-    logger.info(f"[📁] Using merged calls file: {merged_calls_file_path}")
+    print(f"[📁] Using merged calls file: {merged_calls_file_path}")
     access_token = get_access_token_from_refresh_token()
 
     # Load matched calls
@@ -331,7 +320,7 @@ def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
     calls_to_upload = [c for c in call_logs if not c.get("uploaded")]
 
     if not calls_to_upload:
-        logger.info("✅ All calls in this file have already been uploaded. Nothing to do.")
+        print("✅ All calls in this file have already been uploaded. Nothing to do.")
         return
 
     success_count = 0
@@ -349,10 +338,10 @@ def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
         start_time = call.get("startTime")
         filename = format_filename(start_time)
 
-        logger.info(f"\n[{i}/{len(call_logs)}] Processing call {call_id} for CaseID {case_id}")
+        print(f"\n[{i}/{len(call_logs)}] Processing call {call_id} for CaseID {case_id}")
 
         # if call_id in previously_uploaded:
-        #     logger.info(f"[⏩] Skipping previously uploaded call: {call_id}")
+        #     print(f"[⏩] Skipping previously uploaded call: {call_id}")
         #     continue
 
         # Download recording
@@ -371,26 +360,26 @@ def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
 
             # Fallback if upload failed AND it's not already a split part
             if not success and "_part" not in f:
-                logger.info(f"[🔁] Upload failed (non-200). Attempting fallback split for: {f}")
+                print(f"[🔁] Upload failed (non-200). Attempting fallback split for: {f}")
 
                 # 🔄 Split the file first
                 fallback_parts = split_mp3_if_needed(f, force_split=True)
 
                 if not fallback_parts:
-                    logger.info(f"[⚠️] No fallback parts created for {f}. Skipping...")
+                    print(f"[⚠️] No fallback parts created for {f}. Skipping...")
                     continue
 
-                logger.info(f"[🔀] Fallback split created {len(fallback_parts)} parts:")
+                print(f"[🔀] Fallback split created {len(fallback_parts)} parts:")
 
                 for idx, part in enumerate(fallback_parts, 1):
-                    logger.info(f"  [🎧 Part {idx}] {part}")
+                    print(f"  [🎧 Part {idx}] {part}")
 
                 # ✅ Don't try to upload `f` again — it's deleted. Upload each part instead.
                 for part in fallback_parts:
                     if upload_to_irslogics(case_id, part):
                         success_count += 1
                     else:
-                        logger.info(f"[❌] Failed to upload fallback part: {part}")
+                        print(f"[❌] Failed to upload fallback part: {part}")
 
                     # Clean up each part
                     if os.path.exists(part):
@@ -408,7 +397,7 @@ def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
 
         time.sleep(2.5)  # Optional: throttle requests
 
-    logger.info(f"\n[✅] Upload complete. Successful uploads: {success_count}/{len(call_logs)}")
+    print(f"\n[✅] Upload complete. Successful uploads: {success_count}/{len(call_logs)}")
 
 
 if __name__ == "__main__":

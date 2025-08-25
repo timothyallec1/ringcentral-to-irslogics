@@ -36,17 +36,6 @@ from datetime import datetime, timedelta
 import json
 from ringcentral_update_azure_refresh_token import load_refresh_token, save_refresh_token
 from storage_utils import save_json
-import logging
-import sys
-
-# ✅ Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
-)
-logger = logging.getLogger(__name__)
-
 
 
 
@@ -55,10 +44,10 @@ logger = logging.getLogger(__name__)
 # Load from .env.local if present (for local dev), otherwise Azure will use Function App settings
 # ✅ Load secrets logic (local vs Azure)
 if os.path.exists(".env.local"):
-    logger.info("[🔑] Loaded secrets from .env.local (local mode)")
+    print("[🔑] Loaded secrets from .env.local (local mode)")
     load_dotenv(".env.local")
 else:
-    logger.info("[☁️] Using Azure App Service environment variables")
+    print("[☁️] Using Azure App Service environment variables")
 
 # Env variables
 CLIENT_ID = os.getenv("RINGCENTRAL_CLIENT_ID")
@@ -88,7 +77,7 @@ SALE_NUMBERS = {
 }
 
 def get_access_token_from_refresh_token():
-    logger.info("[🔄] Exchanging refresh token for access token...")
+    print("[🔄] Exchanging refresh token for access token...")
     refresh_token = load_refresh_token()   # ✅ read from /home/refresh_token.txt or fallback to env
 
     data = {
@@ -101,9 +90,9 @@ def get_access_token_from_refresh_token():
 
     # Debug output
     if response.status_code != 200:
-        logger.info("❌ Error response from RingCentral:")
-        logger.info("Status Code:", response.status_code)
-        logger.info("Response:", response.text)
+        print("❌ Error response from RingCentral:")
+        print("Status Code:", response.status_code)
+        print("Response:", response.text)
         response.raise_for_status()
 
     token_data = response.json()
@@ -113,13 +102,13 @@ def get_access_token_from_refresh_token():
     if "refresh_token" in token_data:
         save_refresh_token(token_data["refresh_token"])  # ✅ write to /home/refresh_token.txt
 
-    logger.info("[✅] Got access token.")
+    print("[✅] Got access token.")
     return access_token
 
 
 
 # def get_access_token_from_refresh_token():
-#     logger.info("[🔄] Exchanging refresh token for access token...")
+#     print("[🔄] Exchanging refresh token for access token...")
 #     data = {
 #         "grant_type": "refresh_token",
 #         "refresh_token": REFRESH_TOKEN
@@ -130,9 +119,9 @@ def get_access_token_from_refresh_token():
 
 #     # Debug output
 #     if response.status_code != 200:
-#         logger.info("❌ Error response from RingCentral:")
-#         logger.info("Status Code:", response.status_code)
-#         logger.info("Response:", response.text)
+#         print("❌ Error response from RingCentral:")
+#         print("Status Code:", response.status_code)
+#         print("Response:", response.text)
 #         response.raise_for_status()
 
 #     token_data = response.json()
@@ -141,14 +130,14 @@ def get_access_token_from_refresh_token():
 #     # If a new refresh token is returned, save it
 #     if "refresh_token" in token_data:
 #         update_refresh_token_env(token_data["refresh_token"])
-#         logger.info("[✅] New refresh token saved to .env.local.")
+#         print("[✅] New refresh token saved to .env.local.")
 
-#     logger.info("[✅] Got access token.")
+#     print("[✅] Got access token.")
 #     return access_token
 
 
 # def update_refresh_token_env(new_token, env_path=".env.local"):
-#     logger.info("[💾] Updating .env.local with new refresh token...")
+#     print("[💾] Updating .env.local with new refresh token...")
 #     lines = []
 #     updated = False
 
@@ -169,12 +158,12 @@ def get_access_token_from_refresh_token():
 #     with open(env_path, "w") as f:
 #         f.writelines(lines)
 
-#     logger.info("[✅] .env.local updated.")
+#     print("[✅] .env.local updated.")
 
 
 
 def fetch_call_logs(access_token):
-    logger.info("[📞] Fetching call logs with recordings...")
+    print("[📞] Fetching call logs with recordings...")
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
@@ -194,10 +183,10 @@ def fetch_call_logs(access_token):
 
     data = response.json()
     records = data.get("records", [])
-    logger.info(f"[📊] Total call records fetched: {len(records)}")
+    print(f"[📊] Total call records fetched: {len(records)}")
 
     for i, call in enumerate(records[:10]):
-        logger.info(f"\n📞 Call #{i+1}")
+        print(f"\n📞 Call #{i+1}")
         from_number = call.get("from", {}).get("phoneNumber")
         to_number = call.get("to", {}).get("phoneNumber")
         direction = call.get("direction")
@@ -205,24 +194,24 @@ def fetch_call_logs(access_token):
         client_number = from_number if direction == "Inbound" else to_number
         sale_number = to_number if direction == "Inbound" else from_number
 
-        logger.info("  From:         ", from_number)
-        logger.info("  To:           ", to_number)
-        logger.info("  Direction:    ", direction)
-        logger.info("  Client Number:", format_phone_number(client_number))
-        logger.info("  Sale Number:  ", format_phone_number(sale_number))
-        logger.info("  StartTime:    ", call.get("startTime"))
+        print("  From:         ", from_number)
+        print("  To:           ", to_number)
+        print("  Direction:    ", direction)
+        print("  Client Number:", format_phone_number(client_number))
+        print("  Sale Number:  ", format_phone_number(sale_number))
+        print("  StartTime:    ", call.get("startTime"))
 
 
         if "recording" in call:
-            logger.info("  🎙 Recording URI:", call["recording"].get("contentUri"))
+            print("  🎙 Recording URI:", call["recording"].get("contentUri"))
         else:
-            logger.info("  ❌ No recording on this call")
+            print("  ❌ No recording on this call")
 
 
     return records
 
 def download_recording(recording_uri, access_token, filename):
-    logger.info(f"[⬇️] Downloading recording to {filename}...")
+    print(f"[⬇️] Downloading recording to {filename}...")
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
@@ -234,7 +223,7 @@ def download_recording(recording_uri, access_token, filename):
 
     with open(filename, "wb") as f:
         f.write(response.content)
-    logger.info("[✅] Download complete.")
+    print("[✅] Download complete.")
 
 # def save_calls_to_json(calls, output_dir="ring_central_call_logs_cache"):
 #     # Ensure output directory exists
@@ -269,7 +258,7 @@ def download_recording(recording_uri, access_token, filename):
 #     with open(filepath, "w") as f:
 #         json.dump(structured_calls, f, indent=2)
 
-#     logger.info(f"[💾] Saved {len(structured_calls)} calls with recordings to {filepath}")
+#     print(f"[💾] Saved {len(structured_calls)} calls with recordings to {filepath}")
 
 def save_calls_to_json(calls, output_dir="ring_central_call_logs_cache"):
     # Create timestamped filename
@@ -308,13 +297,13 @@ def fetch_and_cache_ringcentral_calls():
     Returns:
         str: Path to the saved JSON file
     """
-    logger.info("🔐 Getting access token using refresh token...")
+    print("🔐 Getting access token using refresh token...")
     access_token = get_access_token_from_refresh_token()
-    logger.info("✅ Access token obtained.")
+    print("✅ Access token obtained.")
 
-    logger.info("📞 Fetching call logs from RingCentral...")
+    print("📞 Fetching call logs from RingCentral...")
     calls = fetch_call_logs(access_token)
-    logger.info(f"📊 Total calls fetched: {len(calls)}")
+    print(f"📊 Total calls fetched: {len(calls)}")
 
     if not calls:
         raise RuntimeError("No calls with recordings found.")
@@ -330,7 +319,7 @@ def fetch_and_cache_ringcentral_calls():
             if formatted_sale in SALE_NUMBERS:
                 structured_calls.append(call)
 
-    logger.info(f"🎯 Matching calls with sales numbers and recordings: {len(structured_calls)}")
+    print(f"🎯 Matching calls with sales numbers and recordings: {len(structured_calls)}")
 
     # Save using original logic
     save_calls_to_json(calls)
@@ -345,11 +334,11 @@ def fetch_and_cache_ringcentral_calls():
         raise FileNotFoundError("❌ No JSON files found in output folder.")
 
     # latest_file = max(all_files, key=os.path.getctime)
-    # logger.info(f"💾 Latest saved call log: {latest_file}")
+    # print(f"💾 Latest saved call log: {latest_file}")
     # return latest_file
     # Save calls (local or blob depending on environment)
     latest_file = save_calls_to_json(calls)
-    logger.info(f"💾 Latest saved call log: {latest_file}")
+    print(f"💾 Latest saved call log: {latest_file}")
     return latest_file
 
 
@@ -360,7 +349,7 @@ def main():
     save_calls_to_json(calls)
 
     if not calls:
-        logger.info("❌ No calls with recordings found.")
+        print("❌ No calls with recordings found.")
         return
 
     for i, call in enumerate(calls):
@@ -380,7 +369,7 @@ def main():
             break
 
     else:
-        logger.info("❌ Found calls, but no recordings were downloadable.")
+        print("❌ Found calls, but no recordings were downloadable.")
 
 def format_phone_number(raw_number):
     if not raw_number:
