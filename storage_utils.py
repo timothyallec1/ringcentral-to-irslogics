@@ -24,7 +24,11 @@ if AZURE_CONN_STR:
     except Exception as e:
         print(f"[⚠️] Failed to init Blob client: {e}")
 
-USE_BLOB = blob_service is not None and not os.path.exists(".env.local")
+# Deployment:
+# USE_BLOB = blob_service is not None and not os.path.exists(".env.local")
+
+# Local dev:
+USE_BLOB = blob_service is not None
 
 # -------------------------------
 # HELPERS
