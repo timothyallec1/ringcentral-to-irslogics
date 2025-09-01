@@ -29,20 +29,42 @@ import json
 import os
 from datetime import datetime
 from utilities import get_latest_json_file
+from storage_utils import save_json, load_latest_json
 
 def match_calls_to_cases(calls_file: str, cases_file: str) -> tuple[str, str]:
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    output_file = f"irs_matched_calls_cache/merged_calls_with_case_id_{timestamp}.json"
-    unmatched_file = f"irs_unmatched_calls_cache/unmatched_calls_{timestamp}.json"
+    matched_filename = f"merged_calls_with_case_id_{timestamp}.json"
+    unmatched_filename = f"unmatched_calls_{timestamp}.json"
 
+    # Load calls
+    if calls_file:
+        try:
+            with open(calls_file, "r") as f:
+                call_logs = json.load(f)
+        except FileNotFoundError:
+            # Fallback to blob
+            call_logs = load_latest_json("ring_central_call_logs_cache", "fetchedcallsringcentral")
+    else:
+        call_logs = load_latest_json("ring_central_call_logs_cache", "fetchedcallsringcentral")
 
-    # Load call logs
-    with open(calls_file, "r") as f:
-        call_logs = json.load(f)
+    # Load cases
+    if cases_file:
+        try:
+            with open(cases_file, "r") as f:
+                cases = json.load(f)
+        except FileNotFoundError:
+            cases = load_latest_json("irs_logics_case_info_cache", "caseinfo")
+    else:
+        cases = load_latest_json("irs_logics_case_info_cache", "caseinfo")
 
-    # Load IRS Logics case contacts
-    with open(cases_file, "r") as f:
-        cases = json.load(f)
+    # Try to load previous matched file to preserve uploaded flags
+    try:
+        prev_file = get_latest_json_file("irs_matched_calls_cache")
+        with open(prev_file, "r") as f:
+            prev_matched = json.load(f)
+        prev_uploaded = {c["call_id"]: c.get("uploaded", False) for c in prev_matched}
+    except Exception:
+        prev_uploaded = {}
 
     # Index by phone number
     phone_to_case = {}
@@ -63,23 +85,23 @@ def match_calls_to_cases(calls_file: str, cases_file: str) -> tuple[str, str]:
         if phone and phone in phone_to_case:
             matched = call.copy()
             matched.update(phone_to_case[phone])
+
+            # Preserve uploaded flag if call_id was seen before
+            call_id = matched["call_id"]
+            matched["uploaded"] = prev_uploaded.get(call_id, False)
+
             matched_calls.append(matched)
         else:
             unmatched_calls.append(call)
 
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    os.makedirs(os.path.dirname(unmatched_file), exist_ok=True)
+    matched_blob = save_json(matched_calls, "irs_matched_calls_cache", matched_filename, "matchedcalls")
+    unmatched_blob = save_json(unmatched_calls, "irs_unmatched_calls_cache", unmatched_filename, "unmatchedcalls")
 
-    with open(output_file, "w") as f:
-        json.dump(matched_calls, f, indent=2)
+    print(f"[✅] Matched {len(matched_calls)} calls saved to {matched_blob}")
+    print(f"[⚠️] Unmatched {len(unmatched_calls)} calls saved to {unmatched_blob}")
 
-    with open(unmatched_file, "w") as f:
-        json.dump(unmatched_calls, f, indent=2)
+    return matched_blob, unmatched_blob
 
-    print(f"[✅] Matched {len(matched_calls)} calls saved to {output_file}")
-    print(f"[⚠️] Unmatched {len(unmatched_calls)} calls saved to {unmatched_file}")
-
-    return output_file, unmatched_file
 
 # Optional standalone usage
 if __name__ == "__main__":

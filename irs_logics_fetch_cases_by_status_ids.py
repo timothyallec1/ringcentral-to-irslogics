@@ -5,6 +5,7 @@ from time import sleep
 from dotenv import load_dotenv
 from datetime import datetime
 from utilities import get_latest_json_file
+from storage_utils import save_json
 
 
 def fetch_and_cache_case_ids() -> str:
@@ -20,7 +21,9 @@ def fetch_and_cache_case_ids() -> str:
     STATUS_FILE = "irs_logics_status_id.json"
     OUTPUT_DIR = "irs_logics_case_ids_cache"
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    OUTPUT_FILE = os.path.join(OUTPUT_DIR, f"all_case_ids_{timestamp}.json")
+    # OUTPUT_FILE = os.path.join(OUTPUT_DIR, f"all_case_ids_{timestamp}.json")
+    filename = f"all_case_ids_{timestamp}.json"
+
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -75,11 +78,10 @@ def fetch_and_cache_case_ids() -> str:
 
         sleep(1)
 
-    with open(OUTPUT_FILE, "w") as f:
-        json.dump(case_cache, f, indent=2)
-
-    print(f"[💾] Case cache saved to: {OUTPUT_FILE}")
-    return OUTPUT_FILE
+    # ✅ Save to blob instead of local file
+    blob_path = save_json(case_cache, OUTPUT_DIR, filename, "caseids")
+    print(f"[💾] Case cache saved to: {blob_path}")
+    return blob_path
 
 
 if __name__ == "__main__":

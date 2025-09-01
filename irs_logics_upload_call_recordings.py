@@ -28,6 +28,7 @@ from pydub import AudioSegment
 from pydub import utils
 from utilities import get_latest_json_file
 from ringcentral_update_azure_refresh_token import load_refresh_token, save_refresh_token
+from storage_utils import load_latest_json, save_json
 
 # ✅ Handle ffmpeg paths for both Windows (local) and Azure/Linux
 # ✅ Handle ffmpeg paths for both Windows (local) and Azure/Linux
@@ -308,14 +309,17 @@ def upload_to_irslogics(case_id, file_path):
 
 def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
     if not merged_calls_file_path:
-        merged_calls_file_path = get_latest_json_file("irs_matched_calls_cache")
-    print(f"[📁] Using merged calls file: {merged_calls_file_path}")
+        # ✅ Load JSON directly (works with Azure Blob or local fallback)
+        call_logs = load_latest_json("irs_matched_calls_cache", "matchedcalls")
+        print(f"[📁] Loaded latest matched calls from container/local cache")
+    else:
+        # If user passed a specific file path, load it manually
+        with open(merged_calls_file_path, "r") as f:
+            call_logs = json.load(f)
+        print(f"[📁] Using merged calls file: {merged_calls_file_path}")
+
     access_token = get_access_token_from_refresh_token()
 
-    # Load matched calls
-    with open(merged_calls_file_path, "r") as f:
-        call_logs = json.load(f)
-        
     # Only process calls that haven't been marked as uploaded
     calls_to_upload = [c for c in call_logs if not c.get("uploaded")]
 
@@ -324,11 +328,12 @@ def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
         return
 
     success_count = 0
+    skipped_count = 0
 
-    # Load previously uploaded call_ids from latest merged_calls_with_case_id
-    previous_log = get_latest_json_file("irs_matched_calls_cache")
-    with open(previous_log, "r") as f:
-        previously_uploaded = {entry["call_id"] for entry in json.load(f)}
+    # Blob-aware way to get previously uploaded call_ids
+    previous_entries = load_latest_json("irs_matched_calls_cache", "matchedcalls")
+    previously_uploaded = {entry["call_id"] for entry in previous_entries if entry.get("uploaded")}
+
 
 
     for i, call in enumerate(call_logs, start=1):
@@ -339,6 +344,11 @@ def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
         filename = format_filename(start_time)
 
         print(f"\n[{i}/{len(call_logs)}] Processing call {call_id} for CaseID {case_id}")
+
+        if call_id in previously_uploaded:
+                print(f"[⏩] Skipping previously uploaded call: {call_id}")
+                skipped_count += 1
+                continue
 
         # if call_id in previously_uploaded:
         #     print(f"[⏩] Skipping previously uploaded call: {call_id}")
@@ -378,6 +388,7 @@ def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
                 for part in fallback_parts:
                     if upload_to_irslogics(case_id, part):
                         success_count += 1
+                        call["uploaded"] = True
                     else:
                         print(f"[❌] Failed to upload fallback part: {part}")
 
@@ -391,13 +402,25 @@ def upload_call_recordings_to_irslogics(merged_calls_file_path=None):
 
             elif success:
                 success_count += 1
+                call["uploaded"] = True
                 if os.path.exists(f):
                     os.remove(f)
 
 
         time.sleep(2.5)  # Optional: throttle requests
 
-    print(f"\n[✅] Upload complete. Successful uploads: {success_count}/{len(call_logs)}")
+    # Save updated call logs (with uploaded flags) back to blob/local
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    updated_filename = f"merged_calls_with_case_id_updated_{timestamp}.json"
+    save_json(call_logs, "irs_matched_calls_cache", updated_filename, "matchedcalls")
+
+    print(f"[💾] Updated matched calls saved to: {updated_filename}")
+
+    print("\n[✅] Upload complete.")
+    print(f"    ⏩ Skipped (already uploaded): {skipped_count}")
+    print(f"    ⬆️  Newly uploaded: {success_count}")
+    print(f"    📊 Total processed this run: {skipped_count + success_count}/{len(call_logs)}")
+
 
 
 if __name__ == "__main__":

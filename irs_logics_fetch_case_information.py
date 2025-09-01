@@ -21,6 +21,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from utilities import get_latest_json_file
 from time import sleep
+from storage_utils import save_json
 
 MAX_RETRIES = 3
 RETRY_DELAY = 2  # seconds
@@ -117,12 +118,16 @@ def fetch_and_cache_irs_logics_cases(force_refresh: bool = False):
 
             sleep(0.3)
 
-    with open(output_path, "w") as f:
-        json.dump(results, f, indent=2)
-
-    print(f"\n✅ Saved {len(results)} case contact entries to {output_path}")
+    blob_path = save_json(
+        results,
+        "irs_logics_case_info_cache",
+        f"all_cases_with_numbers_{timestamp}.json",
+        "caseinfo"
+    )
+    print(f"\n✅ Saved {len(results)} case contact entries to {blob_path}")
     print(f"⏩ Skipped from cache: {skipped} | 🌐 Fetched from API: {fetched}")
-    return output_path
+    return blob_path  
+
 
 
 # Optional: allow standalone usage
