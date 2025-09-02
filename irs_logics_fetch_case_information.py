@@ -19,9 +19,8 @@ import json
 import requests
 from dotenv import load_dotenv
 from datetime import datetime
-from utilities import get_latest_json_file
 from time import sleep
-from storage_utils import save_json
+from storage_utils import save_json, load_latest_json
 
 MAX_RETRIES = 3
 RETRY_DELAY = 2  # seconds
@@ -47,20 +46,26 @@ def fetch_case_with_retries(GET_CASE_URL, API_KEY, case_id):
 
 
 # API_KEY = os.getenv("IRSLOGICS_API_KEY")
-# CASE_CACHE_ID_PATH = get_latest_json_file("irs_logics_case_ids_cache")
+# cache = get_latest_json_file("irs_logics_case_ids_cache")
 # GET_CASE_URL = "https://choice.irslogics.com/publicapi/2020-02-22/cases/caseinfo"
 
+# force refresh flag set it to true if you want case info to be fetched again for all cases
 # force refresh flag set it to true if you want case info to be fetched again for all cases
 def fetch_and_cache_irs_logics_cases(force_refresh: bool = False):
     # Load from .env.local if present (for local dev), otherwise Azure will use Function App settings
     if os.path.exists(".env.local"):
         load_dotenv(".env.local")
     API_KEY = os.getenv("IRSLOGICS_API_KEY")
-    CASE_CACHE_ID_PATH = get_latest_json_file("irs_logics_case_ids_cache")
+
+    # Load case IDs (from Blob in Azure or local cache in dev)
+    try:
+        cache = load_latest_json("irs_logics_case_ids_cache", "caseids")  # ✅ dict, not a path
+    except FileNotFoundError:
+        raise FileNotFoundError("❌ No case IDs cache found. Run fetch_and_cache_case_ids() first.")
+
     GET_CASE_URL = "https://choice.irslogics.com/publicapi/2020-02-22/cases/caseinfo"
     OUTPUT_DIR = "irs_logics_case_info_cache"
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    output_path = os.path.join(OUTPUT_DIR, f"all_cases_with_numbers_{timestamp}.json")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     # Load previous case info if available and not forcing refresh
@@ -73,12 +78,6 @@ def fetch_and_cache_irs_logics_cases(force_refresh: bool = False):
                 prev_cases_by_id = {str(entry["CaseID"]): entry for entry in previous_entries}
         except Exception:
             pass  # no previous cache found
-
-    if not os.path.exists(CASE_CACHE_ID_PATH):
-        raise FileNotFoundError(f"Missing cache file: {CASE_CACHE_ID_PATH}")
-
-    with open(CASE_CACHE_ID_PATH, "r") as f:
-        cache = json.load(f)
 
     results = []
     skipped = 0
