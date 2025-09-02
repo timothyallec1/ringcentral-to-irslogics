@@ -24,8 +24,19 @@ if AZURE_CONN_STR:
     except Exception as e:
         print(f"[⚠️] Failed to init Blob client: {e}")
 
-# Deployment:
-USE_BLOB = blob_service is not None and not os.path.exists(".env.local")
+
+# -------------------------------
+# DEPLOYMENT SWITCH
+# -------------------------------
+running_on_azure = "WEBSITE_INSTANCE_ID" in os.environ
+
+# ✅ Force blob if running on Azure
+USE_BLOB = blob_service is not None and (running_on_azure or not os.path.exists(".env.local"))
+
+print(f"[⚙️] Storage mode: {'Azure Blob' if USE_BLOB else 'Local filesystem'}")
+if running_on_azure:
+    print(f"[☁️] WEBSITE_INSTANCE_ID detected: {os.getenv('WEBSITE_INSTANCE_ID')}")
+
 
 # Local dev:
 # USE_BLOB = blob_service is not None

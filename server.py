@@ -22,6 +22,7 @@ def home():
     logger.info("💓 Healthcheck hit at '/'")
     return {"status": "ok", "message": "IRS Logics Automation API running"}
 
+# Invoke-WebRequest -Uri "https://automated-ringcentral-irslogics-fra6hxard8aadwd9.canadacentral-01.azurewebsites.net/run-automation" -Method GET
 # ✅ Manual trigger (like your HTTP trigger)
 @app.get("/run-automation")
 def manual_trigger(background_tasks: BackgroundTasks):
