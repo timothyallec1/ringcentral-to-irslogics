@@ -321,22 +321,7 @@ def fetch_and_cache_ringcentral_calls():
 
     print(f"🎯 Matching calls with sales numbers and recordings: {len(structured_calls)}")
 
-    # Save using original logic
-    save_calls_to_json(calls)
-
-    # Confirm file written
-    output_dir = "ring_central_call_logs_cache"
-    if not os.path.exists(output_dir):
-        raise FileNotFoundError("❌ Output folder not found.")
-
-    all_files = [os.path.join(output_dir, f) for f in os.listdir(output_dir) if f.endswith(".json")]
-    if not all_files:
-        raise FileNotFoundError("❌ No JSON files found in output folder.")
-
-    # latest_file = max(all_files, key=os.path.getctime)
-    # print(f"💾 Latest saved call log: {latest_file}")
-    # return latest_file
-    # Save calls (local or blob depending on environment)
+    # Save calls (locally or to blob based on environment)
     latest_file = save_calls_to_json(calls)
     print(f"💾 Latest saved call log: {latest_file}")
     return latest_file
