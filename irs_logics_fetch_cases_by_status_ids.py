@@ -4,8 +4,7 @@ import requests
 from time import sleep
 from dotenv import load_dotenv
 from datetime import datetime
-from utilities import get_latest_json_file
-from storage_utils import save_json
+from storage_utils import save_json, load_latest_json
 
 
 def fetch_and_cache_case_ids() -> str:
@@ -27,12 +26,10 @@ def fetch_and_cache_case_ids() -> str:
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # Load previous case cache if available
+    # Load previous cache if available (blob or local)
     try:
-        prev_file = get_latest_json_file(OUTPUT_DIR)
-        with open(prev_file, "r") as f:
-            previous_cache = json.load(f)
-    except Exception:
+        previous_cache = load_latest_json("irs_logics_case_ids_cache", "caseids")
+    except FileNotFoundError:
         previous_cache = {}
 
     with open(STATUS_FILE, "r") as f:

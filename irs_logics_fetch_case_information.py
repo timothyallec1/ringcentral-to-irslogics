@@ -50,38 +50,30 @@ def fetch_case_with_retries(GET_CASE_URL, API_KEY, case_id):
 # GET_CASE_URL = "https://choice.irslogics.com/publicapi/2020-02-22/cases/caseinfo"
 
 # force refresh flag set it to true if you want case info to be fetched again for all cases
-# force refresh flag set it to true if you want case info to be fetched again for all cases
 def fetch_and_cache_irs_logics_cases(force_refresh: bool = False):
-    # Load from .env.local if present (for local dev), otherwise Azure will use Function App settings
     if os.path.exists(".env.local"):
         load_dotenv(".env.local")
     API_KEY = os.getenv("IRSLOGICS_API_KEY")
 
     # Load case IDs (from Blob in Azure or local cache in dev)
     try:
-        cache = load_latest_json("irs_logics_case_ids_cache", "caseids")  # ✅ dict, not a path
+        cache = load_latest_json("irs_logics_case_ids_cache", "caseids")  # ✅ dict
     except FileNotFoundError:
         raise FileNotFoundError("❌ No case IDs cache found. Run fetch_and_cache_case_ids() first.")
 
     GET_CASE_URL = "https://choice.irslogics.com/publicapi/2020-02-22/cases/caseinfo"
-    OUTPUT_DIR = "irs_logics_case_info_cache"
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     # Load previous case info if available and not forcing refresh
     prev_cases_by_id = {}
     if not force_refresh:
         try:
-            previous_log = get_latest_json_file(OUTPUT_DIR)
-            with open(previous_log, "r") as f:
-                previous_entries = json.load(f)
-                prev_cases_by_id = {str(entry["CaseID"]): entry for entry in previous_entries}
+            previous_entries = load_latest_json("irs_logics_case_info_cache", "caseinfo")
+            prev_cases_by_id = {str(entry["CaseID"]): entry for entry in previous_entries}
         except Exception:
-            pass  # no previous cache found
+            pass
 
-    results = []
-    skipped = 0
-    fetched = 0
+    results, skipped, fetched = [], 0, 0
 
     for status_id, case_ids in cache.items():
         print(f"\n[🔁] StatusID: {status_id} — Total Cases: {len(case_ids)}")
@@ -125,7 +117,8 @@ def fetch_and_cache_irs_logics_cases(force_refresh: bool = False):
     )
     print(f"\n✅ Saved {len(results)} case contact entries to {blob_path}")
     print(f"⏩ Skipped from cache: {skipped} | 🌐 Fetched from API: {fetched}")
-    return blob_path  
+    return blob_path
+
 
 
 
