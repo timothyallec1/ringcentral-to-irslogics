@@ -42,31 +42,31 @@ def manual_trigger(background_tasks: BackgroundTasks):
 # Invoke-WebRequest -Uri "https://automated-ringcentral-irslogics-fra6hxard8aadwd9.canadacentral-01.azurewebsites.net/upload-call-recordings" -Method GET
 
 # ✅ New endpoint: Upload Call Recordings only
-@app.get("/upload-call-recordings")
-def upload_call_recordings(background_tasks: BackgroundTasks):
-    logger.info("▶️ Upload Call Recordings endpoint triggered...")
-    latest_calls = load_latest_json("ring_central_call_logs_cache", "fetchedcallsringcentral")
-    latest_cases = load_latest_json("irs_logics_case_info_cache", "caseinfo")
-    match_calls_to_cases(latest_calls, latest_cases)
+# @app.get("/upload-call-recordings")
+# def upload_call_recordings(background_tasks: BackgroundTasks):
+#     logger.info("▶️ Upload Call Recordings endpoint triggered...")
+#     latest_calls = load_latest_json("ring_central_call_logs_cache", "fetchedcallsringcentral")
+#     latest_cases = load_latest_json("irs_logics_case_info_cache", "caseinfo")
+#     match_calls_to_cases(latest_calls, latest_cases)
 
-    def run_upload():
-        try:
-            upload_call_recordings_to_irslogics()
-            logger.info("✅ Call recordings upload completed.")
-        except Exception as e:
-            logger.exception(f"❌ Upload failed in background: {e}")
+#     def run_upload():
+#         try:
+#             upload_call_recordings_to_irslogics()
+#             logger.info("✅ Call recordings upload completed.")
+#         except Exception as e:
+#             logger.exception(f"❌ Upload failed in background: {e}")
 
-    background_tasks.add_task(run_upload)
-    return {"status": "✅ Upload Call Recordings started (running in background)..."}
+#     background_tasks.add_task(run_upload)
+#     return {"status": "✅ Upload Call Recordings started (running in background)..."}
 
-# (Optional) Timer-like endpoint (since App Service doesn’t have CRON triggers by default)
-@app.get("/weekly-automation")
-def weekly_trigger(background_tasks: BackgroundTasks):
-    logger.info("⏰ Weekly automation endpoint called...")
+# # (Optional) Timer-like endpoint (since App Service doesn’t have CRON triggers by default)
+# @app.get("/weekly-automation")
+# def weekly_trigger(background_tasks: BackgroundTasks):
+#     logger.info("⏰ Weekly automation endpoint called...")
 
-    background_tasks.add_task(automate_ringcentral_to_irslogics)
+#     background_tasks.add_task(automate_ringcentral_to_irslogics)
 
-    return {"status": "✅ Weekly automation started"}
+#     return {"status": "✅ Weekly automation started"}
 
 # # ✅ Local dev entrypoint
 # if __name__ == "__main__":
