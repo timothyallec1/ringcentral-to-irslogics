@@ -47,7 +47,7 @@ def fetch_case_with_retries(GET_CASE_URL, API_KEY, case_id):
 
 # API_KEY = os.getenv("IRSLOGICS_API_KEY")
 # cache = get_latest_json_file("irs_logics_case_ids_cache")
-# GET_CASE_URL = "https://choice.irslogics.com/publicapi/2020-02-22/cases/caseinfo"
+# GET_CASE_URL = "https://choice.logiqsapi.com/publicapi/2020-02-22/cases/caseinfo"
 
 # force refresh flag set it to true if you want case info to be fetched again for all cases
 def fetch_and_cache_irs_logics_cases(force_refresh: bool = False):
@@ -61,7 +61,7 @@ def fetch_and_cache_irs_logics_cases(force_refresh: bool = False):
     except FileNotFoundError:
         raise FileNotFoundError("❌ No case IDs cache found. Run fetch_and_cache_case_ids() first.")
 
-    GET_CASE_URL = "https://choice.irslogics.com/publicapi/2020-02-22/cases/caseinfo"
+    GET_CASE_URL = "https://choice.logiqsapi.com/publicapi/2020-02-22/cases/caseinfo"
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     # Load previous case info if available and not forcing refresh

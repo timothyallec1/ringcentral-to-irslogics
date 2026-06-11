@@ -35,7 +35,7 @@ def fetch_and_cache_case_ids() -> str:
     with open(STATUS_FILE, "r") as f:
         statuses = json.load(f)
 
-    BASE_URL = "https://choice.irslogics.com/publicapi/2020-02-22/cases/GetCasesByStatus"
+    BASE_URL = "https://choice.logiqsapi.com/publicapi/2020-02-22/cases/GetCasesByStatus"
     case_cache = {}
 
     for entry in statuses:

@@ -82,7 +82,7 @@ else:
 
 # ✅ Common environment vars
 IRSLOGICS_API_KEY = os.getenv("IRSLOGICS_API_KEY")
-IRSLOGICS_UPLOAD_URL = "https://choice.irslogics.com/publicapi/documents/casedocument"
+IRSLOGICS_UPLOAD_URL = "https://choice.logiqsapi.com/publicapi/documents/casedocument"
 CLIENT_ID = os.getenv("RINGCENTRAL_CLIENT_ID")
 CLIENT_SECRET = os.getenv("RINGCENTRAL_CLIENT_SECRET")
 BASE_URL = os.getenv("RINGCENTRAL_BASE_URL", "https://platform.ringcentral.com")
