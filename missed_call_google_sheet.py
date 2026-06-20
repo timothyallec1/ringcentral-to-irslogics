@@ -1,5 +1,6 @@
 import json
 import os
+import time
 from datetime import datetime, timedelta
 
 import pytz
@@ -17,6 +18,7 @@ from storage_utils import load_latest_json, save_json
 CALL_LOG_URL = f"{BASE_URL}/restapi/v1.0/account/~/call-log"
 PACIFIC = pytz.timezone("US/Pacific")
 SHEET_HEADERS = ["From", "To", "Name", "Date", "Time (Pacific)", "Action", "Result"]
+MAX_RINGCENTRAL_RETRIES = 5
 
 
 def _load_env():
@@ -106,8 +108,26 @@ def fetch_missed_ringcentral_calls(days_back=None):
     page = 1
     while True:
         params["page"] = page
-        response = requests.get(CALL_LOG_URL, headers=headers, params=params, timeout=30)
-        response.raise_for_status()
+        for attempt in range(1, MAX_RINGCENTRAL_RETRIES + 1):
+            response = requests.get(CALL_LOG_URL, headers=headers, params=params, timeout=30)
+            if response.status_code != 429:
+                response.raise_for_status()
+                break
+
+            retry_after = response.headers.get("Retry-After")
+            try:
+                wait_seconds = int(retry_after) if retry_after else 30 * attempt
+            except ValueError:
+                wait_seconds = 30 * attempt
+
+            print(
+                f"[Missed Calls] RingCentral rate limit hit on page {page}. "
+                f"Retrying in {wait_seconds}s ({attempt}/{MAX_RINGCENTRAL_RETRIES})."
+            )
+            time.sleep(wait_seconds)
+        else:
+            response.raise_for_status()
+
         payload = response.json()
         records.extend(payload.get("records", []))
 
