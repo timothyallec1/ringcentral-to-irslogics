@@ -3,6 +3,7 @@ import logging
 import sys
 from automate_ringcentral_to_irslogics import automate_ringcentral_to_irslogics
 from missed_call_google_sheet import populate_missed_calls_google_sheet
+from weekly_ringcentral_automation import run_weekly_ringcentral_automation
 from irs_logics_upload_call_recordings import upload_call_recordings_to_irslogics  # ✅ new import
 from irs_logics_match_caseID_with_call_logs import match_calls_to_cases
 from storage_utils import load_latest_json  # ✅ new import
@@ -53,6 +54,21 @@ def populate_missed_calls_sheet(background_tasks: BackgroundTasks):
 
     background_tasks.add_task(run_job)
     return {"status": "Missed-calls sheet population started."}
+
+
+@app.get("/run-weekly-ringcentral-automation")
+def weekly_ringcentral_automation(background_tasks: BackgroundTasks):
+    logger.info("Manual combined weekly RingCentral automation endpoint fired.")
+
+    def run_job():
+        try:
+            result = run_weekly_ringcentral_automation()
+            logger.info(f"Combined weekly RingCentral automation completed: {result}")
+        except Exception as e:
+            logger.exception(f"Combined weekly RingCentral automation failed: {e}")
+
+    background_tasks.add_task(run_job)
+    return {"status": "Combined weekly RingCentral automation started."}
 
 
 # Invoke-WebRequest -Uri "https://automated-ringcentral-irslogics-fra6hxard8aadwd9.canadacentral-01.azurewebsites.net/upload-call-recordings" -Method GET
