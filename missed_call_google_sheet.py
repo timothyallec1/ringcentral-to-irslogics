@@ -265,6 +265,46 @@ def _sort_sheet_newest_first(service, spreadsheet_id, sheet_name):
     ).execute()
 
 
+def _rewrite_sheet_without_duplicates(service, spreadsheet_id, sheet_name):
+    values = _get_existing_sheet_values(service, spreadsheet_id, f"{sheet_name}!A:G")
+    if not values:
+        return 0
+
+    unique_rows = []
+    seen_keys = set()
+    duplicates_removed = 0
+
+    for row in values[1:]:
+        padded = row + [""] * (len(SHEET_HEADERS) - len(row))
+        normalized_row = padded[:len(SHEET_HEADERS)]
+        key = (_phone_key(normalized_row[0]), normalized_row[3], normalized_row[4])
+
+        if key[0] and key[1] and key[2]:
+            if key in seen_keys:
+                duplicates_removed += 1
+                continue
+            seen_keys.add(key)
+
+        unique_rows.append(normalized_row)
+
+    if duplicates_removed == 0:
+        return 0
+
+    service.spreadsheets().values().clear(
+        spreadsheetId=spreadsheet_id,
+        range=f"{sheet_name}!A:G",
+        body={},
+    ).execute()
+    service.spreadsheets().values().update(
+        spreadsheetId=spreadsheet_id,
+        range=f"{sheet_name}!A1:G{len(unique_rows) + 1}",
+        valueInputOption="USER_ENTERED",
+        body={"values": [SHEET_HEADERS] + unique_rows},
+    ).execute()
+    print(f"[Missed Calls] Removed {duplicates_removed} duplicate Google Sheet rows.")
+    return duplicates_removed
+
+
 def _existing_row_keys(values):
     keys = set()
     for row in values[1:]:
@@ -300,6 +340,7 @@ def append_rows_to_google_sheet(rows):
 
     if not new_rows:
         print("[Missed Calls] No new rows to append.")
+        _rewrite_sheet_without_duplicates(service, spreadsheet_id, sheet_name)
         _sort_sheet_newest_first(service, spreadsheet_id, sheet_name)
         return 0
 
@@ -310,6 +351,7 @@ def append_rows_to_google_sheet(rows):
         insertDataOption="INSERT_ROWS",
         body={"values": new_rows},
     ).execute()
+    _rewrite_sheet_without_duplicates(service, spreadsheet_id, sheet_name)
     _sort_sheet_newest_first(service, spreadsheet_id, sheet_name)
     print(f"[Missed Calls] Appended {len(new_rows)} rows to Google Sheets.")
     return len(new_rows)
