@@ -1,7 +1,7 @@
 import azure.functions as func
 from automate_ringcentral_to_irslogics import automate_ringcentral_to_irslogics
 from missed_call_google_sheet import populate_missed_calls_google_sheet
-from weekly_ringcentral_automation import run_weekly_ringcentral_automation
+from daily_ringcentral_automation import run_daily_ringcentral_automation
 import sys
 import io
 import logging
@@ -81,17 +81,17 @@ def manual_missed_calls_sheet(req: func.HttpRequest) -> func.HttpResponse:
     return func.HttpResponse("Missed-calls sheet population started.", status_code=200)
 
 
-@app.function_name(name="ManualWeeklyRingCentralAutomation")
-@app.route(route="run-weekly-ringcentral-automation", methods=["GET", "POST"])
-def manual_weekly_ringcentral_automation(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info("Manual combined weekly RingCentral automation trigger fired.")
+@app.function_name(name="ManualDailyRingCentralAutomation")
+@app.route(route="run-daily-ringcentral-automation", methods=["GET", "POST"])
+def manual_daily_ringcentral_automation(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info("Manual combined daily RingCentral automation trigger fired.")
 
     def run_job():
         try:
-            result = run_weekly_ringcentral_automation()
-            logging.info(f"Combined weekly RingCentral automation completed: {result}")
+            result = run_daily_ringcentral_automation()
+            logging.info(f"Combined daily RingCentral automation completed: {result}")
         except Exception as e:
-            logging.error(f"Combined weekly RingCentral automation failed: {e}")
+            logging.error(f"Combined daily RingCentral automation failed: {e}")
 
     threading.Thread(target=run_job, daemon=True).start()
-    return func.HttpResponse("Combined weekly RingCentral automation started.", status_code=200)
+    return func.HttpResponse("Combined daily RingCentral automation started.", status_code=200)
