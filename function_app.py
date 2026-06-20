@@ -1,5 +1,6 @@
 import azure.functions as func
 from automate_ringcentral_to_irslogics import automate_ringcentral_to_irslogics
+from missed_call_google_sheet import populate_missed_calls_google_sheet
 import sys
 import io
 import logging
@@ -50,3 +51,30 @@ def manual_trigger(req: func.HttpRequest) -> func.HttpResponse:
 
     # Immediately return so Azure doesn’t kill the request
     return func.HttpResponse("✅ Automation started (running in background)...", status_code=200)
+
+# Captures unknown missed callers for Isabella's callback sheet every weekday.
+@app.function_name(name="WeekdayMissedCallsSheet")
+@app.schedule(schedule="0 0 14 * * 1-5", arg_name="mytimer", run_on_startup=False, use_monitor=True)
+def weekday_missed_calls_sheet(mytimer: func.TimerRequest) -> None:
+    logging.info("Missed-calls sheet timer fired.")
+    try:
+        result = populate_missed_calls_google_sheet()
+        logging.info(f"Missed-calls sheet completed: {result}")
+    except Exception as e:
+        logging.error(f"Missed-calls sheet failed: {e}")
+
+
+@app.function_name(name="ManualMissedCallsSheet")
+@app.route(route="populate-missed-calls-sheet", methods=["GET", "POST"])
+def manual_missed_calls_sheet(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info("Manual missed-calls sheet trigger fired.")
+
+    def run_job():
+        try:
+            result = populate_missed_calls_google_sheet()
+            logging.info(f"Manual missed-calls sheet completed: {result}")
+        except Exception as e:
+            logging.error(f"Manual missed-calls sheet failed: {e}")
+
+    threading.Thread(target=run_job, daemon=True).start()
+    return func.HttpResponse("Missed-calls sheet population started.", status_code=200)

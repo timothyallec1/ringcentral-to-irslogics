@@ -100,3 +100,35 @@ TO MANUALLY EDIT REFRESH_TOKEN.TXT on AZURE
     verify:
     cat -A /home/refresh_token.txt
 
+
+Missed Calls Google Sheet
+
+This repo also includes a separate workflow that collects inbound RingCentral calls with Result = Missed, removes phone numbers already found in IRS Logics case phone fields, and appends the remaining callers to a Google Sheet for callback.
+
+Output columns:
+
+- From
+- To
+- Name
+- Date
+- Time (Pacific)
+- Action
+- Result
+
+Azure Function routes:
+
+- Scheduled: WeekdayMissedCallsSheet runs Monday-Friday at 14:00 UTC.
+- Manual: /api/populate-missed-calls-sheet
+
+Required settings:
+
+- MISSED_CALLS_SPREADSHEET_ID: Google Sheet ID from the spreadsheet URL.
+- GOOGLE_SERVICE_ACCOUNT_JSON: full service account JSON as one app setting, or GOOGLE_SERVICE_ACCOUNT_FILE for local development.
+
+Optional settings:
+
+- MISSED_CALLS_SHEET_NAME: defaults to Missed Calls.
+- MISSED_CALLS_DAYS_BACK: defaults to 7.
+
+Share the Google Sheet with the service account client_email before running the workflow.
+

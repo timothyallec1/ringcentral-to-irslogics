@@ -6,4 +6,6 @@ python-dotenv
 pytz==2025.2
 pydub==0.25.1
 azure-storage-blob
+google-api-python-client
+google-auth
 

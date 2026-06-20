@@ -2,6 +2,7 @@ from fastapi import FastAPI, BackgroundTasks
 import logging
 import sys
 from automate_ringcentral_to_irslogics import automate_ringcentral_to_irslogics
+from missed_call_google_sheet import populate_missed_calls_google_sheet
 from irs_logics_upload_call_recordings import upload_call_recordings_to_irslogics  # ✅ new import
 from irs_logics_match_caseID_with_call_logs import match_calls_to_cases
 from storage_utils import load_latest_json  # ✅ new import
@@ -37,6 +38,21 @@ def manual_trigger(background_tasks: BackgroundTasks):
 
     background_tasks.add_task(run_job)
     return {"status": "✅ Automation started (running in background)..."}
+
+
+@app.get("/populate-missed-calls-sheet")
+def populate_missed_calls_sheet(background_tasks: BackgroundTasks):
+    logger.info("Manual missed-calls sheet endpoint fired.")
+
+    def run_job():
+        try:
+            result = populate_missed_calls_google_sheet()
+            logger.info(f"Missed-calls sheet completed: {result}")
+        except Exception as e:
+            logger.exception(f"Missed-calls sheet failed: {e}")
+
+    background_tasks.add_task(run_job)
+    return {"status": "Missed-calls sheet population started."}
 
 
 # Invoke-WebRequest -Uri "https://automated-ringcentral-irslogics-fra6hxard8aadwd9.canadacentral-01.azurewebsites.net/upload-call-recordings" -Method GET
