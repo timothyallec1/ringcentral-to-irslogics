@@ -119,6 +119,7 @@ Azure Function routes:
 
 - Scheduled: WeekdayMissedCallsSheet runs Monday-Friday at 14:00 UTC.
 - Manual: /api/populate-missed-calls-sheet
+- Optional backfill: /api/populate-missed-calls-sheet?days_back=30
 - Combined daily manual route: /api/run-daily-ringcentral-automation
 
 Required settings:

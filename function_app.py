@@ -69,10 +69,15 @@ def weekday_missed_calls_sheet(mytimer: func.TimerRequest) -> None:
 @app.route(route="populate-missed-calls-sheet", methods=["GET", "POST"])
 def manual_missed_calls_sheet(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("Manual missed-calls sheet trigger fired.")
+    days_back_param = req.params.get("days_back")
+    try:
+        days_back = int(days_back_param) if days_back_param else None
+    except ValueError:
+        return func.HttpResponse("days_back must be a number.", status_code=400)
 
     def run_job():
         try:
-            result = populate_missed_calls_google_sheet()
+            result = populate_missed_calls_google_sheet(days_back=days_back)
             logging.info(f"Manual missed-calls sheet completed: {result}")
         except Exception as e:
             logging.error(f"Manual missed-calls sheet failed: {e}")

@@ -42,12 +42,12 @@ def manual_trigger(background_tasks: BackgroundTasks):
 
 
 @app.get("/populate-missed-calls-sheet")
-def populate_missed_calls_sheet(background_tasks: BackgroundTasks):
-    logger.info("Manual missed-calls sheet endpoint fired.")
+def populate_missed_calls_sheet(background_tasks: BackgroundTasks, days_back: int | None = None):
+    logger.info(f"Manual missed-calls sheet endpoint fired. days_back={days_back}")
 
     def run_job():
         try:
-            result = populate_missed_calls_google_sheet()
+            result = populate_missed_calls_google_sheet(days_back=days_back)
             logger.info(f"Missed-calls sheet completed: {result}")
         except Exception as e:
             logger.exception(f"Missed-calls sheet failed: {e}")
