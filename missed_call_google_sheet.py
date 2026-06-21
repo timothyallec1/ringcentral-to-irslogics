@@ -52,6 +52,30 @@ def _phone_key(phone):
     return "".join(ch for ch in str(phone) if ch.isdigit())[-10:]
 
 
+def _date_key(value):
+    text = str(value or "").strip()
+    for date_format in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y"):
+        try:
+            return datetime.strptime(text, date_format).strftime("%Y-%m-%d")
+        except ValueError:
+            continue
+    return text
+
+
+def _time_key(value):
+    text = str(value or "").strip().upper()
+    for time_format in ("%I:%M %p", "%I:%M:%S %p"):
+        try:
+            return datetime.strptime(text, time_format).strftime("%H:%M")
+        except ValueError:
+            continue
+    return text
+
+
+def _call_key(phone, date_value, time_value):
+    return (_phone_key(phone), _date_key(date_value), _time_key(time_value))
+
+
 def _format_ringcentral_name(call):
     from_info = call.get("from", {}) or {}
     caller_name = from_info.get("name") or from_info.get("extensionName")
@@ -183,7 +207,7 @@ def build_unknown_missed_call_rows(calls, logics_phone_keys):
             continue
 
         date_value, time_value = _format_pacific_date_time(call.get("startTime"))
-        call_key = (from_key, date_value, time_value)
+        call_key = _call_key(from_number, date_value, time_value)
         if call_key in seen_call_keys:
             continue
         seen_call_keys.add(call_key)
@@ -301,19 +325,23 @@ def _rewrite_sheet_without_duplicates(service, spreadsheet_id, sheet_name):
         return 0
 
     unique_rows = []
-    seen_keys = set()
+    row_index_by_key = {}
     duplicates_removed = 0
 
     for row in values[1:]:
         padded = row + [""] * (len(SHEET_HEADERS) - len(row))
         normalized_row = padded[:len(SHEET_HEADERS)]
-        key = (_phone_key(normalized_row[0]), normalized_row[3], normalized_row[4])
+        key = _call_key(normalized_row[0], normalized_row[3], normalized_row[4])
 
         if key[0] and key[1] and key[2]:
-            if key in seen_keys:
+            if key in row_index_by_key:
+                kept_row = unique_rows[row_index_by_key[key]]
+                for column_index in range(len(RINGCENTRAL_HEADERS), len(SHEET_HEADERS)):
+                    if not kept_row[column_index] and normalized_row[column_index]:
+                        kept_row[column_index] = normalized_row[column_index]
                 duplicates_removed += 1
                 continue
-            seen_keys.add(key)
+            row_index_by_key[key] = len(unique_rows)
 
         unique_rows.append(normalized_row)
 
@@ -339,11 +367,9 @@ def _existing_row_keys(values):
     keys = set()
     for row in values[1:]:
         padded = row + [""] * (len(SHEET_HEADERS) - len(row))
-        from_key = _phone_key(padded[0])
-        date_value = padded[3]
-        time_value = padded[4]
-        if from_key and date_value and time_value:
-            keys.add((from_key, date_value, time_value))
+        key = _call_key(padded[0], padded[3], padded[4])
+        if all(key):
+            keys.add(key)
     return keys
 
 
@@ -363,7 +389,7 @@ def append_rows_to_google_sheet(rows):
 
     new_rows = []
     for row in rows:
-        key = (_phone_key(row[0]), row[3], row[4])
+        key = _call_key(row[0], row[3], row[4])
         if key not in existing_keys:
             new_rows.append(row)
             existing_keys.add(key)
