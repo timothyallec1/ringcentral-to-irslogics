@@ -19,7 +19,7 @@ from storage_utils import load_latest_json, save_json
 CALL_LOG_URL = f"{BASE_URL}/restapi/v1.0/account/~/call-log"
 PACIFIC = pytz.timezone("US/Pacific")
 RINGCENTRAL_HEADERS = ["From", "To", "Name", "Date", "Time (Pacific)", "Action", "Result"]
-MANUAL_HEADERS = ["Followed Up By", "IRS Logics Case ID", "Notes"]
+MANUAL_HEADERS = ["Followed Up By", "Case ID", "Notes"]
 SHEET_HEADERS = RINGCENTRAL_HEADERS + MANUAL_HEADERS
 SHEET_RANGE = "A:J"
 MAX_RINGCENTRAL_RETRIES = 5
@@ -430,9 +430,9 @@ def _build_email_html(rows, sheet_url, timeframe):
         "<p>Hello Isabella,</p>"
         f"<p>{len(rows)} new missed call{'s were' if len(rows) != 1 else ' was'} received between {escape(timeframe)}. "
         "Please review the details below and return the calls when you are able.</p>"
+        f'<p><a href="{escape(sheet_url, quote=True)}">Open the missed-calls Google Sheet</a></p>'
         '<table style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px">'
         f"<thead><tr>{headers}</tr></thead><tbody>{''.join(table_rows)}</tbody></table>"
-        f'<p><a href="{escape(sheet_url, quote=True)}">Open the missed-calls Google Sheet</a></p>'
         "<p>Thank you.</p>"
     )
 

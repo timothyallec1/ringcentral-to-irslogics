@@ -115,7 +115,7 @@ Output columns:
 - Action
 - Result
 - Followed Up By
-- IRS Logics Case ID
+- Case ID
 - Notes
 
 Azure Function routes:
