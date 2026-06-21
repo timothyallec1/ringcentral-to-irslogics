@@ -322,11 +322,12 @@ def _sort_sheet_newest_first(service, spreadsheet_id, sheet_name):
 def _rewrite_sheet_without_duplicates(service, spreadsheet_id, sheet_name):
     values = _get_existing_sheet_values(service, spreadsheet_id, f"{sheet_name}!{SHEET_RANGE}")
     if not values:
-        return 0
+        return set()
 
     unique_rows = []
     row_index_by_key = {}
     duplicates_removed = 0
+    duplicate_keys = set()
 
     for row in values[1:]:
         padded = row + [""] * (len(SHEET_HEADERS) - len(row))
@@ -340,13 +341,14 @@ def _rewrite_sheet_without_duplicates(service, spreadsheet_id, sheet_name):
                     if not kept_row[column_index] and normalized_row[column_index]:
                         kept_row[column_index] = normalized_row[column_index]
                 duplicates_removed += 1
+                duplicate_keys.add(key)
                 continue
             row_index_by_key[key] = len(unique_rows)
 
         unique_rows.append(normalized_row)
 
     if duplicates_removed == 0:
-        return 0
+        return set()
 
     service.spreadsheets().values().clear(
         spreadsheetId=spreadsheet_id,
@@ -360,7 +362,7 @@ def _rewrite_sheet_without_duplicates(service, spreadsheet_id, sheet_name):
         body={"values": [SHEET_HEADERS] + unique_rows},
     ).execute()
     print(f"[Missed Calls] Removed {duplicates_removed} duplicate Google Sheet rows.")
-    return duplicates_removed
+    return duplicate_keys
 
 
 def _existing_row_keys(values):
@@ -407,10 +409,19 @@ def append_rows_to_google_sheet(rows):
         insertDataOption="INSERT_ROWS",
         body={"values": new_rows},
     ).execute()
-    _rewrite_sheet_without_duplicates(service, spreadsheet_id, sheet_name)
+    duplicate_keys = _rewrite_sheet_without_duplicates(service, spreadsheet_id, sheet_name)
+    confirmed_new_rows = [
+        row for row in new_rows
+        if _call_key(row[0], row[3], row[4]) not in duplicate_keys
+    ]
     _sort_sheet_newest_first(service, spreadsheet_id, sheet_name)
-    print(f"[Missed Calls] Appended {len(new_rows)} rows to Google Sheets.")
-    return new_rows
+    if len(confirmed_new_rows) != len(new_rows):
+        print(
+            f"[Missed Calls] Discarded {len(new_rows) - len(confirmed_new_rows)} "
+            "provisional rows that final cleanup identified as duplicates."
+        )
+    print(f"[Missed Calls] Confirmed {len(confirmed_new_rows)} new Google Sheet rows.")
+    return confirmed_new_rows
 
 
 def _format_hour(dt):
