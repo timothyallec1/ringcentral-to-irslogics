@@ -114,6 +114,9 @@ Output columns:
 - Time (Pacific)
 - Action
 - Result
+- Followed Up By
+- IRS Logics Case ID
+- Notes
 
 Azure Function routes:
 
@@ -131,6 +134,11 @@ Optional settings:
 
 - MISSED_CALLS_SHEET_NAME: defaults to Missed Calls.
 - MISSED_CALLS_DAYS_BACK: defaults to 7.
+- MISSED_CALLS_SHEET_URL: optional shared Sheet URL used in notification emails.
+
+Email notifications are sent only when rows are newly appended. They use the same SMTP
+settings as choicetax-api: SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, and
+NOTIFY_FROM_EMAIL. Set NOTIFY_FROM_EMAIL to leads@choicetaxrelief.com.
 
 Share the Google Sheet with the service account client_email before running the workflow.
 

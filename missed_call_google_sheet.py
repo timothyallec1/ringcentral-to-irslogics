@@ -1,6 +1,7 @@
 import json
 import os
 import time
+from html import escape
 from datetime import datetime, timedelta
 
 import pytz
@@ -17,8 +18,13 @@ from storage_utils import load_latest_json, save_json
 
 CALL_LOG_URL = f"{BASE_URL}/restapi/v1.0/account/~/call-log"
 PACIFIC = pytz.timezone("US/Pacific")
-SHEET_HEADERS = ["From", "To", "Name", "Date", "Time (Pacific)", "Action", "Result"]
+RINGCENTRAL_HEADERS = ["From", "To", "Name", "Date", "Time (Pacific)", "Action", "Result"]
+MANUAL_HEADERS = ["Followed Up By", "IRS Logics Case ID", "Notes"]
+SHEET_HEADERS = RINGCENTRAL_HEADERS + MANUAL_HEADERS
+SHEET_RANGE = "A:J"
 MAX_RINGCENTRAL_RETRIES = 5
+EMAIL_TO = "isabella@choicetaxrelief.com"
+EMAIL_CC = ["danny.guerra@choicetaxrelief.com", "hailey.ritter@choicetaxrelief.com"]
 
 
 def _load_env():
@@ -166,18 +172,22 @@ def load_current_logics_phone_keys(refresh_cases=False):
 
 def build_unknown_missed_call_rows(calls, logics_phone_keys):
     rows = []
-    seen_phone_keys = set()
+    seen_call_keys = set()
 
     for call in calls:
         from_number = _normalize_phone((call.get("from") or {}).get("phoneNumber"))
         to_number = _normalize_phone((call.get("to") or {}).get("phoneNumber"))
         from_key = _phone_key(from_number)
 
-        if not from_key or from_key in logics_phone_keys or from_key in seen_phone_keys:
+        if not from_key or from_key in logics_phone_keys:
             continue
 
-        seen_phone_keys.add(from_key)
         date_value, time_value = _format_pacific_date_time(call.get("startTime"))
+        call_key = (from_key, date_value, time_value)
+        if call_key in seen_call_keys:
+            continue
+        seen_call_keys.add(call_key)
+
         rows.append(
             [
                 from_number,
@@ -242,13 +252,13 @@ def _get_sheet_id(service, spreadsheet_id, sheet_name):
 
 def _ensure_headers(service, spreadsheet_id, sheet_name):
     _ensure_sheet_exists(service, spreadsheet_id, sheet_name)
-    values = _get_existing_sheet_values(service, spreadsheet_id, f"{sheet_name}!A1:G1")
+    values = _get_existing_sheet_values(service, spreadsheet_id, f"{sheet_name}!A1:J1")
     if values and values[0] == SHEET_HEADERS:
         return
 
     service.spreadsheets().values().update(
         spreadsheetId=spreadsheet_id,
-        range=f"{sheet_name}!A1:G1",
+        range=f"{sheet_name}!A1:J1",
         valueInputOption="RAW",
         body={"values": [SHEET_HEADERS]},
     ).execute()
@@ -286,7 +296,7 @@ def _sort_sheet_newest_first(service, spreadsheet_id, sheet_name):
 
 
 def _rewrite_sheet_without_duplicates(service, spreadsheet_id, sheet_name):
-    values = _get_existing_sheet_values(service, spreadsheet_id, f"{sheet_name}!A:G")
+    values = _get_existing_sheet_values(service, spreadsheet_id, f"{sheet_name}!{SHEET_RANGE}")
     if not values:
         return 0
 
@@ -312,12 +322,12 @@ def _rewrite_sheet_without_duplicates(service, spreadsheet_id, sheet_name):
 
     service.spreadsheets().values().clear(
         spreadsheetId=spreadsheet_id,
-        range=f"{sheet_name}!A:G",
+        range=f"{sheet_name}!{SHEET_RANGE}",
         body={},
     ).execute()
     service.spreadsheets().values().update(
         spreadsheetId=spreadsheet_id,
-        range=f"{sheet_name}!A1:G{len(unique_rows) + 1}",
+        range=f"{sheet_name}!A1:J{len(unique_rows) + 1}",
         valueInputOption="USER_ENTERED",
         body={"values": [SHEET_HEADERS] + unique_rows},
     ).execute()
@@ -348,7 +358,7 @@ def append_rows_to_google_sheet(rows):
     service = _build_sheets_service()
     _ensure_headers(service, spreadsheet_id, sheet_name)
 
-    existing_values = _get_existing_sheet_values(service, spreadsheet_id, f"{sheet_name}!A:G")
+    existing_values = _get_existing_sheet_values(service, spreadsheet_id, f"{sheet_name}!{SHEET_RANGE}")
     existing_keys = _existing_row_keys(existing_values)
 
     new_rows = []
@@ -362,11 +372,11 @@ def append_rows_to_google_sheet(rows):
         print("[Missed Calls] No new rows to append.")
         _rewrite_sheet_without_duplicates(service, spreadsheet_id, sheet_name)
         _sort_sheet_newest_first(service, spreadsheet_id, sheet_name)
-        return 0
+        return []
 
     service.spreadsheets().values().append(
         spreadsheetId=spreadsheet_id,
-        range=f"{sheet_name}!A:G",
+        range=f"{sheet_name}!{SHEET_RANGE}",
         valueInputOption="USER_ENTERED",
         insertDataOption="INSERT_ROWS",
         body={"values": new_rows},
@@ -374,7 +384,98 @@ def append_rows_to_google_sheet(rows):
     _rewrite_sheet_without_duplicates(service, spreadsheet_id, sheet_name)
     _sort_sheet_newest_first(service, spreadsheet_id, sheet_name)
     print(f"[Missed Calls] Appended {len(new_rows)} rows to Google Sheets.")
-    return len(new_rows)
+    return new_rows
+
+
+def _format_hour(dt):
+    return dt.strftime("%I %p").lstrip("0")
+
+
+def _email_timeframe(rows):
+    call_times = []
+    for row in rows:
+        try:
+            call_times.append(datetime.strptime(f"{row[3]} {row[4]}", "%Y-%m-%d %I:%M %p"))
+        except (ValueError, IndexError):
+            continue
+
+    if not call_times:
+        return "the latest hourly period"
+
+    start = min(call_times).replace(minute=0, second=0, microsecond=0)
+    end = max(call_times).replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+    if start.date() == end.date():
+        return f"{_format_hour(start)}-{_format_hour(end)} PT on {start.strftime('%B %d, %Y').replace(' 0', ' ')}"
+
+    return (
+        f"{start.strftime('%B %d, %Y').replace(' 0', ' ')} at {_format_hour(start)} PT through "
+        f"{end.strftime('%B %d, %Y').replace(' 0', ' ')} at {_format_hour(end)} PT"
+    )
+
+
+def _build_email_html(rows, sheet_url, timeframe):
+    table_rows = []
+    for row in rows:
+        cells = "".join(
+            f'<td style="padding:8px;border:1px solid #d1d5db">{escape(str(value or ""))}</td>'
+            for value in row
+        )
+        table_rows.append(f"<tr>{cells}</tr>")
+
+    headers = "".join(
+        f'<th style="padding:8px;border:1px solid #d1d5db;text-align:left">{escape(header)}</th>'
+        for header in RINGCENTRAL_HEADERS
+    )
+    return (
+        "<p>Hello Isabella,</p>"
+        f"<p>{len(rows)} new missed call{'s were' if len(rows) != 1 else ' was'} received between {escape(timeframe)}. "
+        "Please review the details below and return the calls when you are able.</p>"
+        '<table style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px">'
+        f"<thead><tr>{headers}</tr></thead><tbody>{''.join(table_rows)}</tbody></table>"
+        f'<p><a href="{escape(sheet_url, quote=True)}">Open the missed-calls Google Sheet</a></p>'
+        "<p>Thank you.</p>"
+    )
+
+
+def send_new_missed_calls_notification(rows):
+    _load_env()
+    smtp_host = os.getenv("SMTP_HOST")
+    smtp_port = int(os.getenv("SMTP_PORT", "587"))
+    smtp_username = os.getenv("SMTP_USERNAME")
+    smtp_password = os.getenv("SMTP_PASSWORD")
+    from_email = os.getenv("NOTIFY_FROM_EMAIL", smtp_username)
+    to_email = EMAIL_TO
+    cc_emails = EMAIL_CC
+
+    if not all((smtp_host, smtp_username, smtp_password, from_email, to_email)):
+        print("[Missed Calls] SMTP settings are incomplete; notification skipped.")
+        return "skipped"
+
+    import smtplib
+    from email.mime.text import MIMEText
+
+    spreadsheet_id = os.getenv("MISSED_CALLS_SPREADSHEET_ID")
+    sheet_url = os.getenv(
+        "MISSED_CALLS_SHEET_URL",
+        f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/edit?usp=sharing",
+    )
+    timeframe = _email_timeframe(rows)
+    message = MIMEText(_build_email_html(rows, sheet_url, timeframe), "html")
+    message["Subject"] = (
+        f"{len(rows)} New Missed Call{'s' if len(rows) != 1 else ''} from {timeframe}"
+    )
+    message["From"] = from_email
+    message["To"] = to_email
+    if cc_emails:
+        message["Cc"] = ", ".join(cc_emails)
+
+    with smtplib.SMTP(smtp_host, smtp_port, timeout=30) as server:
+        server.starttls()
+        server.login(smtp_username, smtp_password)
+        server.send_message(message, from_addr=from_email, to_addrs=[to_email] + cc_emails)
+
+    print(f"[Missed Calls] Email notification sent for {len(rows)} new calls.")
+    return "sent"
 
 
 def populate_missed_calls_google_sheet(days_back=None, refresh_cases=False):
@@ -390,8 +491,20 @@ def populate_missed_calls_google_sheet(days_back=None, refresh_cases=False):
         "unknownmissedcalls",
     )
 
-    appended = append_rows_to_google_sheet(rows)
-    return {"candidate_rows": len(rows), "appended_rows": appended}
+    appended_rows = append_rows_to_google_sheet(rows)
+    email_status = "not_needed"
+    if appended_rows:
+        try:
+            email_status = send_new_missed_calls_notification(appended_rows)
+        except Exception as exc:
+            email_status = f"failed: {exc}"
+            print(f"[Missed Calls] Email notification failed: {exc}")
+
+    return {
+        "candidate_rows": len(rows),
+        "appended_rows": len(appended_rows),
+        "email_status": email_status,
+    }
 
 
 if __name__ == "__main__":
