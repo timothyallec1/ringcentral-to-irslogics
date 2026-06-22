@@ -24,7 +24,7 @@ SHEET_HEADERS = RINGCENTRAL_HEADERS + MANUAL_HEADERS
 SHEET_RANGE = "A:J"
 MAX_RINGCENTRAL_RETRIES = 5
 EMAIL_TO = "isabella@choicetaxrelief.com"
-EMAIL_CC = ["danny.guerra@choicetaxrelief.com", "hailey.ritter@choicetaxrelief.com", "logan.allec@choicetaxrelief.com"]
+EMAIL_CC = ["danny.guerra@choicetaxrelief.com", "hailey.ritter@choicetaxrelief.com", "logan.allec@choicetaxrelief.com", "116timo@gmail.com"]
 
 
 def _load_env():
