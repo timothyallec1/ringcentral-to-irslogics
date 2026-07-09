@@ -32,15 +32,20 @@ def phone_key(value):
 
 
 def load_refresh_token():
-    token = os.getenv("RINGCENTRAL_REFRESH_TOKEN")
-    if token:
-        return token
+    if os.path.exists(".env.local"):
+        token = os.getenv("RINGCENTRAL_REFRESH_TOKEN")
+        if token:
+            return token
 
     if os.path.exists(REFRESH_TOKEN_FILE):
         with open(REFRESH_TOKEN_FILE, "r", encoding="utf-8") as f:
             token = f.read().strip()
         if token:
             return token
+
+    token = os.getenv("RINGCENTRAL_REFRESH_TOKEN")
+    if token:
+        return token
 
     raise RuntimeError("Missing RINGCENTRAL_REFRESH_TOKEN.")
 
