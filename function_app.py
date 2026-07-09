@@ -2,6 +2,7 @@ import azure.functions as func
 from automate_ringcentral_to_irslogics import automate_ringcentral_to_irslogics
 from missed_call_google_sheet import populate_missed_calls_google_sheet
 from daily_ringcentral_automation import run_daily_ringcentral_automation
+from ringcentral_call_audit import build_audit_csv, csv_filename
 import sys
 import io
 import logging
@@ -100,3 +101,56 @@ def manual_daily_ringcentral_automation(req: func.HttpRequest) -> func.HttpRespo
 
     threading.Thread(target=run_job, daemon=True).start()
     return func.HttpResponse("Combined daily RingCentral automation started.", status_code=200)
+
+
+def _audit_param(req: func.HttpRequest, *names):
+    for name in names:
+        value = req.params.get(name)
+        if value:
+            return value
+    return None
+
+
+@app.function_name(name="RingCentralCallAudit")
+@app.route(route="ringcentral-call-audit", methods=["GET"])
+def ringcentral_call_audit(req: func.HttpRequest) -> func.HttpResponse:
+    start_month = _audit_param(req, "start_month", "begin_month")
+    start_year = _audit_param(req, "start_year", "begin_year")
+    end_month = _audit_param(req, "end_month")
+    end_year = _audit_param(req, "end_year")
+
+    missing = [
+        name
+        for name, value in (
+            ("start_month", start_month),
+            ("start_year", start_year),
+            ("end_month", end_month),
+            ("end_year", end_year),
+        )
+        if not value
+    ]
+    if missing:
+        return func.HttpResponse(
+            "Missing required query parameter(s): "
+            + ", ".join(missing)
+            + ". Example: /api/ringcentral-call-audit?start_month=1&start_year=2026&end_month=6&end_year=2026",
+            status_code=400,
+        )
+
+    try:
+        csv_body = build_audit_csv(start_month, start_year, end_month, end_year)
+        filename = csv_filename(start_month, start_year, end_month, end_year)
+    except ValueError as exc:
+        return func.HttpResponse(str(exc), status_code=400)
+    except Exception as exc:
+        logging.exception("RingCentral call audit failed.")
+        return func.HttpResponse(f"RingCentral call audit failed: {exc}", status_code=500)
+
+    return func.HttpResponse(
+        csv_body,
+        status_code=200,
+        mimetype="text/csv",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+        },
+    )
